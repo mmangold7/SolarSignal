@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using SolarSignal.Hubs;
@@ -20,6 +20,10 @@ namespace SolarSignal.SolarModels
 
         public List<Body> Bodies;
 
+        private readonly Random _playerIdGenerator = new Random();
+
+        public List<Player> Players => Bodies.OfType<Player>().ToList();
+
         private bool _paused;
 
         private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
@@ -36,6 +40,23 @@ namespace SolarSignal.SolarModels
             _hubContext = context;
 
             Bodies = bodies.ToList();
+        }
+
+        public int CreatePlayerAndReturnId()
+        {
+            var newId = _playerIdGenerator.Next(0, int.MaxValue);
+
+            Bodies.Add(new Player
+            {
+                Id = newId,
+                Color = "purple",
+                Mass = 1,
+                Radius = 10,
+                XPosition = 100,
+                YPosition = 100
+            });
+
+            return newId;
         }
 
         #endregion
@@ -57,10 +78,11 @@ namespace SolarSignal.SolarModels
         {
             while (!_paused)
             {
+                HandlePlayerInput();
                 MoveBodies();
                 GravitateBodies();
                 await _hubContext.Clients.All.GameState(Bodies);
-                Thread.Sleep(1000 / 60);
+                await Task.Delay(1000 / 60);
             }
         }
 
@@ -107,7 +129,7 @@ namespace SolarSignal.SolarModels
         {
             if (Bodies == null) return;
 
-            foreach (var body in Bodies)
+            foreach (var body in Bodies.Where(b => b.GetType() != typeof(Player)))
             foreach (var otherBody in Bodies.Where(b => b != body))
             {
                 var xDisplacement = otherBody.XPosition - body.XPosition;
@@ -132,6 +154,56 @@ namespace SolarSignal.SolarModels
             {
                 body.XPosition += body.XVelocity;
                 body.YPosition += body.YVelocity;
+            }
+        }
+
+        private void ClearInputs(Player player)
+        {
+            player.LeftPressed = false;
+            player.RightPressed = false;
+            player.UpPressed = false;
+            player.DownPressed = false;
+        }
+
+        private void HandlePlayerInput()
+        {
+            if (Players == null) return;
+
+            foreach (var player in Players)
+            {
+                player.Angle -= Convert.ToInt32(player.LeftPressed)*2;
+                player.Angle += Convert.ToInt32(player.RightPressed)*2;
+
+                if (player.Angle > 360) player.Angle -= 360;
+
+                if (player.Angle < 0) player.Angle += 360;
+
+                var upPressed = player.UpPressed;
+                var downPressed = player.DownPressed;
+
+                if (upPressed && downPressed)
+                {
+                    ClearInputs(player);
+                    return;
+                }
+
+                var scaleMagnitude = 2 / 30.0;
+
+                var xUnitVector = Math.Cos(player.Angle * Math.PI / 180);
+                var yUnitVector = Math.Sin(player.Angle * Math.PI / 180);
+
+                if (upPressed)
+                {
+                    player.XVelocity += scaleMagnitude * xUnitVector;
+                    player.YVelocity += scaleMagnitude * yUnitVector;
+                }
+                else if (downPressed)
+                {
+                    player.XVelocity -= scaleMagnitude * xUnitVector;
+                    player.YVelocity -= scaleMagnitude * yUnitVector;
+                }
+
+                ClearInputs(player);
             }
         }
 

@@ -1,9 +1,11 @@
 ﻿namespace SolarSignal.SolarModels
 {
-    public class Player
+    public class Player : Body
     {
         #region ///  Properties  ///
 
+        public int Id { get; set; }
+        public int Angle { get; set; }
         public bool DownPressed { get; set; }
         public bool LeftMousePressed { get; set; }
         public bool LeftPressed { get; set; }

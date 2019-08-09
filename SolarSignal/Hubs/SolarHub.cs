@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using SolarSignal.SolarModels;
@@ -19,12 +21,26 @@ namespace SolarSignal.Hubs
             await Clients.All.Message(user, message);
         }
 
-        #endregion
-    }
+        public async Task Left(int playerId)
+        {
+            Globals.Simulator.Players.Single(p => p.Id == playerId).LeftPressed = true;
+        }
 
-    public interface ISolarHub
-    {
-        Task GameState(List<Body> bodies);
-        Task Message(string user, string message);
+        public async Task Right(int playerId)
+        {
+            Globals.Simulator.Players.Single(p => p.Id == playerId).RightPressed = true;
+        }
+
+        public async Task Up(int playerId)
+        {
+            Globals.Simulator.Players.Single(p => p.Id == playerId).UpPressed = true;
+        }
+
+        public async Task Down(int playerId)
+        {
+            Globals.Simulator.Players.Single(p => p.Id == playerId).DownPressed = true;
+        }
+
+        #endregion
     }
 }
