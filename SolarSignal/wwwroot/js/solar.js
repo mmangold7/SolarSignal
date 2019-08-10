@@ -5,11 +5,12 @@ var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
 var context = canvas.getContext("2d");
 
+var debugEnabled = false;
+
 var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
 
 //Disable send button until connection is established
 document.getElementById("sendButton").disabled = true;
-
 
 //going to try to make 1 pixel = 1 million kilometers approx in distance between bodies
 
@@ -25,52 +26,89 @@ connection.on("Message",
     });
 
 connection.on("GameState",
-    function (bodies) {
+    function(bodies) {
         //center view on player
-        //displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
+        displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
 
         //center view on sun
-        displayOffsetBody = bodies.filter(body => body.name === "sun")[0];
+        //displayOffsetBody = bodies.filter(body => body.name === "sun")[0];
 
         //draw black background
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = "black";
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        //draw bodies
-        bodies.forEach(body => drawBody(body));
-
         //draw debug info
         //context.font = "10px Arial";
         //context.fillText("Hello World", 10, 50);
+        if (debugEnabled) {
+            drawGrid();
+        }
+
+        //draw bodies
+        bodies.forEach(body => drawBody(body));
     });
+
+function drawGrid() {
+    //var numberOfDivisions = 3;
+    //var squareSide
+
+    //for (var lineIterator = 0; lineIterator < numberOfDivisions; lineIterator++) {
+    //    canvasWidth/numberOfDivisions
+    //}
+    var midX = canvasWidth / 2;
+    var midY = canvasHeight / 2;
+
+    context.moveTo(midX - trackerXOffset(), 0 - trackerYOffset());
+    context.lineTo(midX - trackerXOffset(), canvasHeight - trackerYOffset());
+
+    context.moveTo(0 - trackerXOffset(), midY - trackerYOffset());
+    context.lineTo(canvasWidth - trackerXOffset(), midY - trackerYOffset());
+
+    context.strokeStyle = "white";
+    context.stroke();
+
+}
+
+function trackerAndCanvasXOffset() {
+    return displayOffsetBody.xPosition - canvasWidth / 2;
+}
+
+function trackerAndCanvasYOffset() {
+    return displayOffsetBody.yPosition - canvasHeight / 2;
+}
+
+function trackerXOffset() {
+    return displayOffsetBody.xPosition;
+}
+
+function trackerYOffset() {
+    return displayOffsetBody.yPosition;
+}
 
 function drawBody(body) {
     context.beginPath();
 
-    var xOffset = displayOffsetBody.xPosition - canvasWidth/2;
-    var yOffset = displayOffsetBody.yPosition - canvasHeight/2;
-
     //if player
-    if (body.hasOwnProperty('id')) {
+    if (body.hasOwnProperty("id")) {
         //
         context.save();
         context.translate(body.xPosition, body.yPosition);
         context.rotate(body.angle * Math.PI / 180);
 
         //draw a triangle shaped ship
-        context.moveTo(body.xPosition + body.radius - xOffset, body.yPosition - yOffset);
-        context.lineTo(body.xPosition - body.radius - xOffset, body.yPosition - body.radius - yOffset);
-        context.lineTo(body.xPosition - body.radius - xOffset, body.yPosition + body.radius - yOffset);
+        context.moveTo(body.xPosition + body.radius - trackerAndCanvasXOffset(), body.yPosition - trackerAndCanvasYOffset());
+        context.lineTo(body.xPosition - body.radius - trackerAndCanvasXOffset(), body.yPosition - body.radius - trackerAndCanvasYOffset());
+        context.lineTo(body.xPosition - body.radius - trackerAndCanvasXOffset(), body.yPosition + body.radius - trackerAndCanvasYOffset());
         context.fillStyle = body.color;
         context.fill();
 
         //
         context.translate(-body.xPosition, -body.yPosition);
         context.restore();
-    //else if celestial body
+        //else if celestial body
     } else {
-        context.arc(body.xPosition - xOffset, body.yPosition - yOffset, body.radius, 0, 2 * Math.PI);
+        context.arc(body.xPosition - trackerAndCanvasXOffset(), body.yPosition - trackerAndCanvasYOffset(), body.radius, 0, 2 * Math.PI);
         context.fillStyle = body.color;
         context.fill();
     }
@@ -123,6 +161,9 @@ function handleKey(e) {
             return console.error(err.toString());
         });
         break; //Down key
+    case 68:
+        debugEnabled = !debugEnabled;
+        break; //D key
     default:
         alert(code); //Everything else
     }
