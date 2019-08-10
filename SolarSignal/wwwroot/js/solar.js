@@ -27,9 +27,10 @@ connection.on("Message",
 connection.on("GameState",
     function (bodies) {
         //center view on player
-        if (displayOffsetBody === null || displayOffsetBody === undefined) {
-            displayOffsetBody = bodies.filter(body => body.id === "sun")[0];
-        }
+        //displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
+
+        //center view on sun
+        displayOffsetBody = bodies.filter(body => body.name === "sun")[0];
 
         //draw black background
         context.clearRect(0, 0, canvas.width, canvas.height);

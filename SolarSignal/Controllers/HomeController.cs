@@ -27,10 +27,17 @@ namespace SolarSignal.Controllers
 
         private void StartSimulationIfStopped()
         {
-            var simulator = Globals.Simulator;
-            if (simulator != null) return; //not stopped
+            if (Globals.Simulator != null) return; //not stopped
 
-            simulator = new Simulator(_serviceProvider);
+            //start it up
+            Globals.Simulator = GetSolSimulator();
+
+            Task.Run(() => Globals.Simulator.Simulate());
+        }
+
+        public Simulator GetSolSimulator()
+        {
+            var simulator = new Simulator(_serviceProvider);
 
             //make the sun
             var sun = new Body
@@ -47,17 +54,14 @@ namespace SolarSignal.Controllers
             simulator.Bodies.Add(sun);
 
             //make the earth
-            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 3000, 3, "blue", "earth");
+            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 50000, 3, "blue", "earth");
 
             //make the moon
             var moon = simulator.CreateCircularOrbiterOf(earth, 15, .1, 1, "white", "moon");
 
             //simulator.Bodies.Remove(sun);
 
-            //start it up
-            Task.Run(() => simulator.Simulate());
-
-            Globals.Simulator = simulator;
+            return simulator;
         }
 
         public IActionResult About()
