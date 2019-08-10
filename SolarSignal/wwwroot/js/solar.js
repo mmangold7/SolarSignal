@@ -92,11 +92,14 @@ function drawBody(body) {
     //if player
     if (body.hasOwnProperty("id")) {
         //
-        context.save();
-        context.translate(body.xPosition, body.yPosition);
-        context.rotate(body.angle * Math.PI / 180);
+        //context.save();
+        //context.translate(-canvasWidth / 2, -canvasHeight / 2);
+        //context.rotate(body.angle * Math.PI / 180);
 
         //draw a triangle shaped ship
+        //context.translate(body.xPosition - trackerAndCanvasXOffset(), body.yPosition - trackerAndCanvasYOffset());
+        //context.rotate(body.angle * Math.PI / 180);
+
         context.moveTo(body.xPosition + body.radius - trackerAndCanvasXOffset(), body.yPosition - trackerAndCanvasYOffset());
         context.lineTo(body.xPosition - body.radius - trackerAndCanvasXOffset(), body.yPosition - body.radius - trackerAndCanvasYOffset());
         context.lineTo(body.xPosition - body.radius - trackerAndCanvasXOffset(), body.yPosition + body.radius - trackerAndCanvasYOffset());
@@ -104,8 +107,8 @@ function drawBody(body) {
         context.fill();
 
         //
-        context.translate(-body.xPosition, -body.yPosition);
-        context.restore();
+        //context.translate(canvasWidth / 2, canvasHeight / 2);
+        //context.restore();
         //else if celestial body
     } else {
         context.arc(body.xPosition - trackerAndCanvasXOffset(), body.yPosition - trackerAndCanvasYOffset(), body.radius, 0, 2 * Math.PI);
@@ -178,3 +181,5 @@ function handleKey(e) {
 //        e.preventDefault();
 //    }
 //}, false);
+
+//todo: replace some of the offset logic with context.translate to simplify the code
