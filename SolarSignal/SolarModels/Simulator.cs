@@ -125,11 +125,23 @@ namespace SolarSignal.SolarModels
             return orbiter;
         }
 
+        private bool _shouldGravitatePlayers = false;
+
+        private IEnumerable<Body> GetGravitatableBodies()
+        {
+            if (_shouldGravitatePlayers)
+            {
+                return Bodies;
+            }
+
+            return Bodies.Where(b => b.GetType() != typeof(Player));
+        }
+
         private void GravitateBodies()
         {
             if (Bodies == null) return;
 
-            foreach (var body in Bodies.Where(b => b.GetType() != typeof(Player)))
+            foreach (var body in Bodies)
             foreach (var otherBody in Bodies.Where(b => b != body))
             {
                 var xDisplacement = otherBody.XPosition - body.XPosition;
