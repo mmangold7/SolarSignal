@@ -199,7 +199,7 @@ namespace SolarSignal.SolarModels
                     return;
                 }
 
-                var scaleMagnitude = 2 / 30.0;
+                var scaleMagnitude = 5 / 30.0;
 
                 var xUnitVector = Math.Cos(player.Angle * Math.PI / 180);
                 var yUnitVector = Math.Sin(player.Angle * Math.PI / 180);

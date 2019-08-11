@@ -131,41 +131,35 @@ document.getElementById("sendButton").addEventListener("click",
     });
 
 window.addEventListener("keydown", handleKey, false);
+window.addEventListener("keyup", handleKey, false);
 
+//https://stackoverflow.com/questions/5203407/how-to-detect-if-multiple-keys-are-pressed-at-once-using-javascript
+var map = {};
 function handleKey(e) {
-
-    if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-        e.preventDefault();
+    e.preventDefault();
+    map[e.keyCode] = e.type == 'keydown';
+    if (map[37]) {
+        connection.invoke("Left", playerId).catch(function (err) {
+            return console.error(err.toString());
+        });
     }
-
-    var code = e.keyCode;
-
-    switch (code) {
-    case 37:
-        connection.invoke("Left", playerId).catch(function(err) {
+    if (map[38]) {
+        connection.invoke("Up", playerId).catch(function (err) {
             return console.error(err.toString());
         });
-        break; //Left key
-    case 38:
-        connection.invoke("Up", playerId).catch(function(err) {
+    }
+    if (map[39]) {
+        connection.invoke("Right", playerId).catch(function (err) {
             return console.error(err.toString());
         });
-        break; //Up key
-    case 39:
-        connection.invoke("Right", playerId).catch(function(err) {
+    }
+    if (map[40]) {
+        connection.invoke("Down", playerId).catch(function (err) {
             return console.error(err.toString());
         });
-        break; //Right key
-    case 40:
-        connection.invoke("Down", playerId).catch(function(err) {
-            return console.error(err.toString());
-        });
-        break; //Down key
-    case 68:
+    }
+    if (map[68]) {
         debugEnabled = !debugEnabled;
-        break; //D key
-    default:
-        alert(code); //Everything else
     }
 }
 
