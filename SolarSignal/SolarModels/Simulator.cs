@@ -42,21 +42,22 @@ namespace SolarSignal.SolarModels
             Bodies = bodies.ToList();
         }
 
-        public int CreatePlayerAndReturnId()
+        public void CreatePlayerWithId(string id)
         {
-            var newId = _playerIdGenerator.Next(0, int.MaxValue);
-
             Bodies.Add(new Player
             {
-                Id = newId,
+                Id = id,
                 Color = "purple",
                 Mass = 1,
                 Radius = 10,
                 XPosition = 100,
                 YPosition = 100
             });
+        }
 
-            return newId;
+        public void DestroyPlayerWithId(string id)
+        {
+            Bodies.Remove(Players.Single(p => p.Id == id));
         }
 
         #endregion
@@ -141,7 +142,7 @@ namespace SolarSignal.SolarModels
         {
             if (Bodies == null) return;
 
-            foreach (var body in Bodies)
+            foreach (var body in GetGravitatableBodies())
             foreach (var otherBody in Bodies.Where(b => b != body))
             {
                 var xDisplacement = otherBody.XPosition - body.XPosition;

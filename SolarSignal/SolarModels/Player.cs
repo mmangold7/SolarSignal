@@ -4,7 +4,7 @@
     {
         #region ///  Properties  ///
 
-        public int Id { get; set; }
+        public string Id { get; set; }
         public int Angle { get; set; }
         public bool DownPressed { get; set; }
         public bool LeftMousePressed { get; set; }

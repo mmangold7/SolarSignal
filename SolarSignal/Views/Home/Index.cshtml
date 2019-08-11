@@ -2,8 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-@model int
-
 <div id="images"></div>
 @*<canvas style="left: 50px; margin: 0; padding: 0; position: relative; top: 50px;" id="imgCanvas" width="500" height="500"></canvas>*@
 <canvas id="imgCanvas" width="1000" height="750" style="border:1px solid #d3d3d3;">
@@ -123,8 +121,6 @@
             </ul>
         </div>
     </div>*@
-<script type="text/javascript">
-    var playerId = @Model.ToString();
-</script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/solar.js"></script>

@@ -11,6 +11,23 @@ namespace SolarSignal.Hubs
     {
         #region ///  Methods  ///
 
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await base.OnDisconnectedAsync(exception);
+            Globals.Simulator.DestroyPlayerWithId(Context.ConnectionId);
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            await base.OnConnectedAsync();
+            Globals.Simulator.CreatePlayerWithId(Context.ConnectionId);
+        }
+
+        public string GetConnectionId()
+        {
+            return Context.ConnectionId;
+        }
+
         public async Task GameState(List<Body> bodies)
         {
             await Clients.All.GameState(bodies);
@@ -21,22 +38,22 @@ namespace SolarSignal.Hubs
             await Clients.All.Message(user, message);
         }
 
-        public async Task Left(int playerId)
+        public async Task Left(string playerId)
         {
             Globals.Simulator.Players.Single(p => p.Id == playerId).LeftPressed = true;
         }
 
-        public async Task Right(int playerId)
+        public async Task Right(string playerId)
         {
             Globals.Simulator.Players.Single(p => p.Id == playerId).RightPressed = true;
         }
 
-        public async Task Up(int playerId)
+        public async Task Up(string playerId)
         {
             Globals.Simulator.Players.Single(p => p.Id == playerId).UpPressed = true;
         }
 
-        public async Task Down(int playerId)
+        public async Task Down(string playerId)
         {
             Globals.Simulator.Players.Single(p => p.Id == playerId).DownPressed = true;
         }

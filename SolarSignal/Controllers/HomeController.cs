@@ -19,10 +19,7 @@ namespace SolarSignal.Controllers
         public IActionResult Index()
         {
             StartSimulationIfStopped();
-
-            var playerId = Globals.Simulator.CreatePlayerAndReturnId();
-
-            return View(playerId);
+            return View();
         }
 
         private void StartSimulationIfStopped()
