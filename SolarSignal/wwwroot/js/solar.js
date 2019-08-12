@@ -76,7 +76,7 @@
         var gridSpacing = 100;
         var gridRadius = 1000;
 
-        for (var i = -gridRadius/gridSpacing; i <= gridRadius/gridSpacing; i++) {
+        for (var i = -gridRadius / gridSpacing; i <= gridRadius / gridSpacing; i++) {
             context.moveTo(i * gridSpacing, -gridRadius);
             context.lineTo(i * gridSpacing, gridRadius);
             context.moveTo(-gridRadius, i * gridSpacing);
@@ -201,13 +201,13 @@
             });
         }
         if (keyMap[80]) { //P
-            
+
             if (paused) {
                 connection.invoke("Resume").catch(function(err) {
                     return console.error(err.toString());
                 });
             } else {
-                connection.invoke("Pause").catch(function (err) {
+                connection.invoke("Pause").catch(function(err) {
                     return console.error(err.toString());
                 });
             }

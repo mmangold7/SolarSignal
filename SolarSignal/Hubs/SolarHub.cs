@@ -7,20 +7,31 @@ using SolarSignal.SolarModels;
 
 namespace SolarSignal.Hubs
 {
+    public static class UserHandler
+    {
+        public static HashSet<string> ConnectedIds = new HashSet<string>();
+    }
+
     public class SolarHub : Hub<ISolarHub>
     {
         #region ///  Methods  ///
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            await base.OnDisconnectedAsync(exception);
+            UserHandler.ConnectedIds.Remove(Context.ConnectionId);
             Globals.Simulator.DestroyPlayerWithId(Context.ConnectionId);
+            if (UserHandler.ConnectedIds.Count == 0 && Globals.Simulator != null)
+            {
+                Globals.Simulator = null;
+            }
+            await base.OnDisconnectedAsync(exception);
         }
 
         public override async Task OnConnectedAsync()
         {
-            await base.OnConnectedAsync();
+            UserHandler.ConnectedIds.Add(Context.ConnectionId);
             Globals.Simulator.CreatePlayerWithId(Context.ConnectionId);
+            await base.OnConnectedAsync();
         }
 
         public string GetConnectionId()

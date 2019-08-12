@@ -83,10 +83,7 @@ namespace SolarSignal.SolarModels
                 MoveBodies();
                 GravitateBodies();
                 await _hubContext.Clients.All.GameState(Bodies);
-                foreach (var player in Players)
-                {
-                    ClearInputs(player);
-                }
+                foreach (var player in Players) ClearInputs(player);
                 await Task.Delay(1000 / 60);
             }
         }
@@ -130,14 +127,11 @@ namespace SolarSignal.SolarModels
             return orbiter;
         }
 
-        private bool _shouldGravitatePlayers = false;
+        private readonly bool _shouldGravitatePlayers = false;
 
         private IEnumerable<Body> GetGravitatableBodies()
         {
-            if (_shouldGravitatePlayers)
-            {
-                return Bodies;
-            }
+            if (_shouldGravitatePlayers) return Bodies;
 
             return Bodies.Where(b => b.GetType() != typeof(Player));
         }
@@ -188,8 +182,8 @@ namespace SolarSignal.SolarModels
 
             foreach (var player in Players)
             {
-                player.Angle -= Convert.ToInt32(player.LeftPressed)*5;
-                player.Angle += Convert.ToInt32(player.RightPressed)*5;
+                player.Angle -= Convert.ToInt32(player.LeftPressed) * 5;
+                player.Angle += Convert.ToInt32(player.RightPressed) * 5;
 
                 if (player.Angle > 360) player.Angle -= 360;
 
