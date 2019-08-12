@@ -72,23 +72,15 @@
         });
 
     function drawGrid() {
-        //var gridSpacing = 50;
-        //var totalWidthSpaces = canvasWidth / gridSpacing;
-        //var totalHeightSpaces = canvasWidth / gridSpacing;
-        //for (var xIterator = 0; xIterator < totalWidthSpaces; xIterator++) {
-        //    context.moveTo(xIterator * gridSpacing - trackerXOffset(), 0 - trackerYOffset());
-        //    context.lineTo(xIterator * gridSpacing - trackerXOffset(), canvasHeight - trackerYOffset());
-        //}
-        //for (var yIterator = 0; yIterator < totalHeightSpaces; yIterator++) {
-        //    context.moveTo(0 - trackerXOffset(), yIterator * gridSpacing - trackerYOffset());
-        //    context.lineTo(canvasWidth - trackerXOffset(), yIterator * gridSpacing - trackerYOffset());
-        //}
+        var gridSpacing = 50;
+        var gridWidth = 1000;
 
-        context.moveTo(0, - canvasHeight / 2);
-        context.lineTo(0, canvasHeight / 2);
-
-        context.moveTo(- canvasWidth / 2, 0);
-        context.lineTo(canvasWidth / 2, 0);
+        for (var i = 0; i <= gridWidth/gridSpacing; i++) {
+            context.moveTo(i * gridSpacing, 0);
+            context.lineTo(i * gridSpacing, gridWidth);
+            context.moveTo(0, i * gridSpacing);
+            context.lineTo(gridWidth, i * gridSpacing);
+        }
 
         context.strokeStyle = "white";
         context.stroke();
@@ -97,8 +89,7 @@
     function drawBody(body) {
         context.beginPath();
 
-        //if player
-        if (body.hasOwnProperty("id")) {
+        if (body.hasOwnProperty("id")) { //if player
             //draw a triangle shaped ship
             context.save();
 
@@ -115,11 +106,32 @@
             context.fill();
 
             //draw effects
-            //context.
+            if (forwardBoosting()) {
+                context.moveTo(body.xPosition - body.radius, body.yPosition);
+                context.lineTo(body.xPosition - body.radius - body.radius * 3, body.yPosition);
+            }
+            if (backwardBoosting()) {
+                context.moveTo(body.xPosition + body.radius, body.yPosition);
+                context.lineTo(body.xPosition + body.radius + body.radius * 3, body.yPosition);
+            }
+            if (leftTurning()) {
+                context.moveTo(body.xPosition + body.radius, body.yPosition);
+                context.lineTo(body.xPosition + body.radius, body.yPosition + body.radius * 1.5);
+                context.moveTo(body.xPosition - body.radius, body.yPosition - body.radius);
+                context.lineTo(body.xPosition - body.radius, body.yPosition - body.radius - body.radius * 0.5);
+            }
+            if (rightTurning()) {
+                context.moveTo(body.xPosition + body.radius, body.yPosition);
+                context.lineTo(body.xPosition + body.radius, body.yPosition - body.radius * 1.5);
+                context.moveTo(body.xPosition - body.radius, body.yPosition + body.radius);
+                context.lineTo(body.xPosition - body.radius, body.yPosition + body.radius + body.radius * 0.5);
+            }
+            context.strokeStyle = "blue";
+            context.stroke();
 
+            //restore rotation
             context.restore();
-            //else if celestial body
-        } else {
+        } else { //else if celestial body
             context.arc(body.xPosition,
                 body.yPosition,
                 body.radius,
