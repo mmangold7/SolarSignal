@@ -72,14 +72,14 @@
         });
 
     function drawGrid() {
-        var gridSpacing = 50;
-        var gridWidth = 1000;
+        var gridSpacing = 100;
+        var gridRadius = 1000;
 
-        for (var i = 0; i <= gridWidth/gridSpacing; i++) {
-            context.moveTo(i * gridSpacing, 0);
-            context.lineTo(i * gridSpacing, gridWidth);
-            context.moveTo(0, i * gridSpacing);
-            context.lineTo(gridWidth, i * gridSpacing);
+        for (var i = -gridRadius/gridSpacing; i <= gridRadius/gridSpacing; i++) {
+            context.moveTo(i * gridSpacing, -gridRadius);
+            context.lineTo(i * gridSpacing, gridRadius);
+            context.moveTo(-gridRadius, i * gridSpacing);
+            context.lineTo(gridRadius, i * gridSpacing);
         }
 
         context.strokeStyle = "white";
