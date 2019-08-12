@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.Numerics;
+using Newtonsoft.Json;
 
 namespace SolarSignal.SolarModels
 {
@@ -12,12 +14,16 @@ namespace SolarSignal.SolarModels
         public double XPosition { get; set; }
         public double XVelocity { get; set; }
         public double YPosition { get; set; }
+
         public double YVelocity { get; set; }
+
         //todo:add toggle between controlling angular position and controlling angular acceleration
         //public double AngularVelocity { get; set; }
         public string Color { get; set; }
-        [JsonIgnore]
-        public Body ParentBody { get; set; }
+
+        [JsonIgnore] public Body ParentBody { get; set; }
+
+        public List<Vector2> FuturePositions { get; set; }
 
         #endregion
     }

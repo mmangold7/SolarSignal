@@ -69,7 +69,12 @@
             //draw bodies
             bodies.forEach(body => drawBody(body));
 
+            //draw future paths
+            bodies.forEach(body => drawFuturePaths(body));
+
+            //restore translation before next frame
             context.translate(trackerAndCanvasXOffset(), trackerAndCanvasYOffset());
+            console.log(bodies);
         });
 
     function drawGrid() {
@@ -141,6 +146,18 @@
             context.fillStyle = body.color;
             context.fill();
         }
+    }
+
+    function drawFuturePaths(body) {
+        context.beginPath();
+        var firstPosition = body.futurePositions[0];
+        context.moveTo(firstPosition.x, firstPosition.y);
+        for (var i = 1; i < body.futurePositions.length; i++) {
+            var nextPosition = body.futurePositions[i];
+            context.lineTo(nextPosition.x, nextPosition.y);
+        }
+        context.strokeStyle = body.color;
+        context.stroke();
     }
 
     connection.start().then(function() {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,8 @@ namespace SolarSignal.SolarModels
         #region ///  Fields  ///
 
         public List<Body> Bodies;
+
+        public int FuturePositionsCount { get; set; } = 200;
 
         private readonly Random _playerIdGenerator = new Random();
 
@@ -80,11 +83,55 @@ namespace SolarSignal.SolarModels
             while (!_paused)
             {
                 HandlePlayerInput();
-                MoveBodies();
                 GravitateBodies();
+                MoveBodies();
+                SimulateFuturePositions();
                 await _hubContext.Clients.All.GameState(Bodies);
                 foreach (var player in Players) ClearInputs(player);
                 await Task.Delay(1000 / 60);
+            }
+        }
+
+        //turn the code that updates position into a position-updater function that can be used in the simulation to get each future position vector
+        private void SimulateFuturePositions()
+        {
+            foreach (var body in Bodies)
+            {
+                var originalXPosition = body.XPosition;
+                var originalYPosition = body.YPosition;
+                var originalXVelocity = body.XVelocity;
+                var originalYVelocity = body.YVelocity;
+
+                var simulatedPositions = new List<Vector2>();
+
+                for (int i = 0; i < FuturePositionsCount; i++)
+                {
+                    foreach (var otherBody in Bodies.Where(b => b != body))
+                    {
+                        var xDisplacement = otherBody.XPosition - body.XPosition;
+                        var yDisplacement = otherBody.YPosition - body.YPosition;
+
+                        var rSquared = Math.Pow(xDisplacement, 2) + Math.Pow(yDisplacement, 2);
+                        var theta = Math.Atan2(yDisplacement, xDisplacement);
+
+                        var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
+                        var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
+
+                        body.XVelocity += bodyXDeltaV;
+                        body.YVelocity += bodyYDeltaV;
+                    }
+
+                    body.XPosition += body.XVelocity;
+                    body.YPosition += body.YVelocity;
+
+                    simulatedPositions.Add(new Vector2(Convert.ToSingle(body.XPosition), Convert.ToSingle(body.YPosition)));
+                }
+
+                body.XPosition = originalXPosition;
+                body.YPosition = originalYPosition;
+                body.XVelocity = originalXVelocity;
+                body.YVelocity = originalYVelocity;
+                body.FuturePositions = simulatedPositions;
             }
         }
 
