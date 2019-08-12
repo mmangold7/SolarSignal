@@ -7,6 +7,7 @@
     var context = canvas.getContext("2d");
 
     var debugEnabled = false;
+    var paused = false;
 
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
 
@@ -106,22 +107,21 @@
             context.fill();
 
             //draw effects
-            //todo:fix bug where player sees all player's effects in sync with their own
-            if (forwardBoosting()) {
+            if (body.upPressed) {
                 context.moveTo(body.xPosition - body.radius, body.yPosition);
                 context.lineTo(body.xPosition - body.radius - body.radius * 3, body.yPosition);
             }
-            if (backwardBoosting()) {
+            if (body.downPressed) {
                 context.moveTo(body.xPosition + body.radius, body.yPosition);
                 context.lineTo(body.xPosition + body.radius + body.radius * 3, body.yPosition);
             }
-            if (leftTurning()) {
+            if (body.leftPressed) {
                 context.moveTo(body.xPosition + body.radius, body.yPosition);
                 context.lineTo(body.xPosition + body.radius, body.yPosition + body.radius * 1.5);
                 context.moveTo(body.xPosition - body.radius, body.yPosition - body.radius);
                 context.lineTo(body.xPosition - body.radius, body.yPosition - body.radius - body.radius * 0.5);
             }
-            if (rightTurning()) {
+            if (body.rightPressed) {
                 context.moveTo(body.xPosition + body.radius, body.yPosition);
                 context.lineTo(body.xPosition + body.radius, body.yPosition - body.radius * 1.5);
                 context.moveTo(body.xPosition - body.radius, body.yPosition + body.radius);
@@ -173,32 +173,45 @@
         e.preventDefault();
         keyMap[e.keyCode] = e.type === "keydown";
         if (keyMap[37]) {
-            connection.invoke("Left", playerId).catch(function(err) {
+            connection.invoke("Left").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[38]) {
-            connection.invoke("Up", playerId).catch(function(err) {
+            connection.invoke("Up").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[39]) {
-            connection.invoke("Right", playerId).catch(function(err) {
+            connection.invoke("Right").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[40]) {
-            connection.invoke("Down", playerId).catch(function(err) {
+            connection.invoke("Down").catch(function(err) {
                 return console.error(err.toString());
             });
         }
-        if (keyMap[68]) {
+        if (keyMap[68]) { //D
             debugEnabled = !debugEnabled;
         }
-        if (keyMap[32]) {
-            connection.invoke("Shoot", playerId).catch(function (err) {
+        if (keyMap[32]) { //Space
+            connection.invoke("Shoot").catch(function(err) {
                 return console.error(err.toString());
             });
+        }
+        if (keyMap[80]) { //P
+            
+            if (paused) {
+                connection.invoke("Resume").catch(function(err) {
+                    return console.error(err.toString());
+                });
+            } else {
+                connection.invoke("Pause").catch(function (err) {
+                    return console.error(err.toString());
+                });
+            }
+            paused = !paused;
         }
     }
 
@@ -212,6 +225,5 @@
 
     function shooting() { return keyMap[32] };
 
-//todo: write a left click handler that changes the display offset vector to the clicked body. the vector is just the bodies position
-//on click set the global variable for the body whose position vector should be used
+//todo: write a left click handler that changes the display offset body to the clicked body
 });

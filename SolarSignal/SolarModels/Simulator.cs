@@ -83,6 +83,10 @@ namespace SolarSignal.SolarModels
                 MoveBodies();
                 GravitateBodies();
                 await _hubContext.Clients.All.GameState(Bodies);
+                foreach (var player in Players)
+                {
+                    ClearInputs(player);
+                }
                 await Task.Delay(1000 / 60);
             }
         }
@@ -215,8 +219,6 @@ namespace SolarSignal.SolarModels
                     player.XVelocity -= scaleMagnitude * xUnitVector;
                     player.YVelocity -= scaleMagnitude * yUnitVector;
                 }
-
-                ClearInputs(player);
             }
         }
 

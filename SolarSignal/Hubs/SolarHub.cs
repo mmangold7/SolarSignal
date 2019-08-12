@@ -38,33 +38,41 @@ namespace SolarSignal.Hubs
             await Clients.All.Message(user, message);
         }
 
-        public async Task Left(string playerId)
+        public async Task Left()
         {
-            Globals.Simulator.Players.Single(p => p.Id == playerId).LeftPressed = true;
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).LeftPressed = true;
         }
 
-        public async Task Right(string playerId)
+        public async Task Right()
         {
-            Globals.Simulator.Players.Single(p => p.Id == playerId).RightPressed = true;
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).RightPressed = true;
         }
 
-        public async Task Up(string playerId)
+        public async Task Up()
         {
-            Globals.Simulator.Players.Single(p => p.Id == playerId).UpPressed = true;
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).UpPressed = true;
         }
 
-        public async Task Down(string playerId)
+        public async Task Down()
         {
-            Globals.Simulator.Players.Single(p => p.Id == playerId).DownPressed = true;
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).DownPressed = true;
         }
 
-        public async Task Shoot(string playerId)
+        public async Task Shoot()
         {
             //todo:create a bullet or missile or whatever derived body and have them shoot out from the current player
             throw new NotImplementedException();
         }
 
-        //todo:replace playerId parameter with Context.ConnectionId so it's more secure
+        public async Task Pause()
+        {
+            Globals.Simulator.Pause();
+        }
+
+        public async Task Resume()
+        {
+            Globals.Simulator.Resume();
+        }
 
         #endregion
     }
