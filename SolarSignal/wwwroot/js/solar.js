@@ -226,4 +226,6 @@
     function shooting() { return keyMap[32] };
 
 //todo: write a left click handler that changes the display offset body to the clicked body
+//todo:add floating indicators for player names and integrate chat with the game
+//todo:allow customizing ship colors and maybe appearance
 });
