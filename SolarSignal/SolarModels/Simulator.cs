@@ -184,8 +184,8 @@ namespace SolarSignal.SolarModels
 
             foreach (var player in Players)
             {
-                player.Angle -= Convert.ToInt32(player.LeftPressed)*2;
-                player.Angle += Convert.ToInt32(player.RightPressed)*2;
+                player.Angle -= Convert.ToInt32(player.LeftPressed)*5;
+                player.Angle += Convert.ToInt32(player.RightPressed)*5;
 
                 if (player.Angle > 360) player.Angle -= 360;
 

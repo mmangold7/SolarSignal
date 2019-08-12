@@ -85,6 +85,18 @@
         });
 
     function drawGrid() {
+        //var gridSpacing = 50;
+        //var totalWidthSpaces = canvasWidth / gridSpacing;
+        //var totalHeightSpaces = canvasWidth / gridSpacing;
+        //for (var xIterator = 0; xIterator < totalWidthSpaces; xIterator++) {
+        //    context.moveTo(xIterator * gridSpacing - trackerXOffset(), 0 - trackerYOffset());
+        //    context.lineTo(xIterator * gridSpacing - trackerXOffset(), canvasHeight - trackerYOffset());
+        //}
+        //for (var yIterator = 0; yIterator < totalHeightSpaces; yIterator++) {
+        //    context.moveTo(0 - trackerXOffset(), yIterator * gridSpacing - trackerYOffset());
+        //    context.lineTo(canvasWidth - trackerXOffset(), yIterator * gridSpacing - trackerYOffset());
+        //}
+
         var midX = canvasWidth / 2;
         var midY = canvasHeight / 2;
 
@@ -93,6 +105,12 @@
 
         context.moveTo(0 - trackerXOffset(), midY - trackerYOffset());
         context.lineTo(canvasWidth - trackerXOffset(), midY - trackerYOffset());
+
+        //context.moveTo(midX, 0);
+        //context.lineTo(midX, canvasHeight);
+
+        //context.moveTo(0, midY);
+        //context.lineTo(canvasWidth, midY);
 
         context.strokeStyle = "white";
         context.stroke();
