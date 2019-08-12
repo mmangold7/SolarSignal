@@ -106,6 +106,7 @@
             context.fill();
 
             //draw effects
+            //todo:fix bug where player sees all player's effects in sync with their own
             if (forwardBoosting()) {
                 context.moveTo(body.xPosition - body.radius, body.yPosition);
                 context.lineTo(body.xPosition - body.radius - body.radius * 3, body.yPosition);
@@ -194,6 +195,11 @@
         if (keyMap[68]) {
             debugEnabled = !debugEnabled;
         }
+        if (keyMap[32]) {
+            connection.invoke("Shoot", playerId).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
     }
 
     function forwardBoosting() { return keyMap[38] };
@@ -203,6 +209,8 @@
     function leftTurning() { return keyMap[37] };
 
     function rightTurning() { return keyMap[39] };
+
+    function shooting() { return keyMap[32] };
 
 //todo: write a left click handler that changes the display offset vector to the clicked body. the vector is just the bodies position
 //on click set the global variable for the body whose position vector should be used

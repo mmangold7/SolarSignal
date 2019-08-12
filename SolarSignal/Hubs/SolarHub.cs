@@ -58,6 +58,14 @@ namespace SolarSignal.Hubs
             Globals.Simulator.Players.Single(p => p.Id == playerId).DownPressed = true;
         }
 
+        public async Task Shoot(string playerId)
+        {
+            //todo:create a bullet or missile or whatever derived body and have them shoot out from the current player
+            throw new NotImplementedException();
+        }
+
+        //todo:replace playerId parameter with Context.ConnectionId so it's more secure
+
         #endregion
     }
 }
