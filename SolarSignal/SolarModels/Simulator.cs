@@ -22,13 +22,13 @@ namespace SolarSignal.SolarModels
         public List<Body> Bodies;
 
         public int FuturePositionsCount { get; set; } = 200;
+        public bool ShouldCalculateFuturePaths { get; set; } = false;
 
         private readonly Random _playerIdGenerator = new Random();
 
         public List<Player> Players => Bodies.OfType<Player>().ToList();
 
         private bool _paused;
-
         private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
 
         public Simulator(IServiceProvider serviceProvider)
@@ -53,8 +53,8 @@ namespace SolarSignal.SolarModels
                 Color = "purple",
                 Mass = 1,
                 Radius = 10,
-                XPosition = 100,
-                YPosition = 100
+                XPosition = 200,
+                YPosition = 200
             });
         }
 
@@ -72,10 +72,26 @@ namespace SolarSignal.SolarModels
             _paused = true;
         }
 
+        private int FuturesCountIncrementSize = 50;
+
+        public void IncreaseFuturesCalculations()
+        {
+            FuturePositionsCount += FuturesCountIncrementSize;
+        }
+
+        public void DecreaseFuturesCalculations()
+        {
+            FuturePositionsCount -= FuturesCountIncrementSize;
+            if(FuturePositionsCount < 0)
+            {
+                FuturePositionsCount = 0;
+            }
+        }
+
         public void Resume()
         {
             _paused = false;
-            Simulate();
+            //Simulate();
         }
 
         public async void Simulate()
@@ -85,7 +101,7 @@ namespace SolarSignal.SolarModels
                 HandlePlayerInput();
                 GravitateBodies();
                 MoveBodies();
-                SimulateFuturePositions();
+                CalculateFuturePositions();
                 await _hubContext.Clients.All.GameState(Bodies);
                 foreach (var player in Players) ClearInputs(player);
                 await Task.Delay(1000 / 60);
@@ -93,45 +109,52 @@ namespace SolarSignal.SolarModels
         }
 
         //turn the code that updates position into a position-updater function that can be used in the simulation to get each future position vector
-        private void SimulateFuturePositions()
+        private void CalculateFuturePositions()
         {
             foreach (var body in Bodies)
             {
-                var originalXPosition = body.XPosition;
-                var originalYPosition = body.YPosition;
-                var originalXVelocity = body.XVelocity;
-                var originalYVelocity = body.YVelocity;
-
-                var simulatedPositions = new List<Vector2>();
-
-                for (int i = 0; i < FuturePositionsCount; i++)
+                if (ShouldCalculateFuturePaths && FuturePositionsCount > 0)
                 {
-                    foreach (var otherBody in Bodies.Where(b => b != body))
+                    var originalXPosition = body.XPosition;
+                    var originalYPosition = body.YPosition;
+                    var originalXVelocity = body.XVelocity;
+                    var originalYVelocity = body.YVelocity;
+
+                    var simulatedPositions = new List<Vector2>();
+
+                    for (int i = 0; i < FuturePositionsCount; i++)
                     {
-                        var xDisplacement = otherBody.XPosition - body.XPosition;
-                        var yDisplacement = otherBody.YPosition - body.YPosition;
+                        foreach (var otherBody in Bodies.Where(b => b != body))
+                        {
+                            var xDisplacement = otherBody.XPosition - body.XPosition;
+                            var yDisplacement = otherBody.YPosition - body.YPosition;
 
-                        var rSquared = Math.Pow(xDisplacement, 2) + Math.Pow(yDisplacement, 2);
-                        var theta = Math.Atan2(yDisplacement, xDisplacement);
+                            var rSquared = Math.Pow(xDisplacement, 2) + Math.Pow(yDisplacement, 2);
+                            var theta = Math.Atan2(yDisplacement, xDisplacement);
 
-                        var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
-                        var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
+                            var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
+                            var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
 
-                        body.XVelocity += bodyXDeltaV;
-                        body.YVelocity += bodyYDeltaV;
+                            body.XVelocity += bodyXDeltaV;
+                            body.YVelocity += bodyYDeltaV;
+                        }
+
+                        body.XPosition += body.XVelocity;
+                        body.YPosition += body.YVelocity;
+
+                        simulatedPositions.Add(new Vector2(Convert.ToSingle(body.XPosition), Convert.ToSingle(body.YPosition)));
                     }
 
-                    body.XPosition += body.XVelocity;
-                    body.YPosition += body.YVelocity;
-
-                    simulatedPositions.Add(new Vector2(Convert.ToSingle(body.XPosition), Convert.ToSingle(body.YPosition)));
+                    body.XPosition = originalXPosition;
+                    body.YPosition = originalYPosition;
+                    body.XVelocity = originalXVelocity;
+                    body.YVelocity = originalYVelocity;
+                    body.FuturePositions = simulatedPositions;
                 }
-
-                body.XPosition = originalXPosition;
-                body.YPosition = originalYPosition;
-                body.XVelocity = originalXVelocity;
-                body.YVelocity = originalYVelocity;
-                body.FuturePositions = simulatedPositions;
+                else
+                {
+                    body.FuturePositions = null;
+                }
             }
         }
 
@@ -174,7 +197,7 @@ namespace SolarSignal.SolarModels
             return orbiter;
         }
 
-        private readonly bool _shouldGravitatePlayers = false;
+        private readonly bool _shouldGravitatePlayers = true;
 
         private IEnumerable<Body> GetGravitatableBodies()
         {

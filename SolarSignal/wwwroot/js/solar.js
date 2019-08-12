@@ -8,6 +8,7 @@
 
     var debugEnabled = false;
     var paused = false;
+    var shouldDrawFuturePaths = false;
 
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
 
@@ -70,11 +71,13 @@
             bodies.forEach(body => drawBody(body));
 
             //draw future paths
-            bodies.forEach(body => drawFuturePaths(body));
+            if (shouldDrawFuturePaths) {
+                bodies.forEach(body => drawFuturePaths(body));
+            }
 
             //restore translation before next frame
             context.translate(trackerAndCanvasXOffset(), trackerAndCanvasYOffset());
-            console.log(bodies);
+            //console.log(bodies);
         });
 
     function drawGrid() {
@@ -149,15 +152,18 @@
     }
 
     function drawFuturePaths(body) {
-        context.beginPath();
-        var firstPosition = body.futurePositions[0];
-        context.moveTo(firstPosition.x, firstPosition.y);
-        for (var i = 1; i < body.futurePositions.length; i++) {
-            var nextPosition = body.futurePositions[i];
-            context.lineTo(nextPosition.x, nextPosition.y);
+        var futures = body.futurePositions;
+        if (futures !== "undefined" && futures !== null && futures.length !== 0) {
+            context.beginPath();
+            var firstPosition = futures[0];
+            context.moveTo(firstPosition.x, firstPosition.y);
+            for (var i = 1; i < futures.length; i++) {
+                var nextPosition = futures[i];
+                context.lineTo(nextPosition.x, nextPosition.y);
+            }
+            context.strokeStyle = body.color;
+            context.stroke();
         }
-        context.strokeStyle = body.color;
-        context.stroke();
     }
 
     connection.start().then(function() {
@@ -218,7 +224,6 @@
             });
         }
         if (keyMap[80]) { //P
-
             if (paused) {
                 connection.invoke("Resume").catch(function(err) {
                     return console.error(err.toString());
@@ -229,6 +234,22 @@
                 });
             }
             paused = !paused;
+        }
+        if (keyMap[70]) { //F
+            shouldDrawFuturePaths = !shouldDrawFuturePaths;
+            connection.invoke("ToggleCalculateFuturePaths").catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+        if (keyMap[107] || keyMap[187]) { //+
+            connection.invoke("IncreaseFuturesCalculations").catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+        if (keyMap[109] || keyMap[189]) { //-
+            connection.invoke("DecreaseFuturesCalculations").catch(function (err) {
+                return console.error(err.toString());
+            });
         }
     }
 

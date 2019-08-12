@@ -85,6 +85,21 @@ namespace SolarSignal.Hubs
             Globals.Simulator.Resume();
         }
 
+        public async Task ToggleCalculateFuturePaths()
+        {
+            Globals.Simulator.ShouldCalculateFuturePaths = !Globals.Simulator.ShouldCalculateFuturePaths;
+        }
+
+        public async Task IncreaseFuturesCalculations()
+        {
+            Globals.Simulator.IncreaseFuturesCalculations();
+        }
+
+        public async Task DecreaseFuturesCalculations()
+        {
+            Globals.Simulator.DecreaseFuturesCalculations();
+        }
+
         #endregion
     }
 }
