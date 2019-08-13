@@ -59,7 +59,7 @@
 
             //translate origin to the tracked body/ship
             context.translate(-trackerAndCanvasXOffset(), -trackerAndCanvasYOffset());
-            console.log(bodies.filter(b => b.name == "moon")[0]);
+
             //draw debug info
             //context.font = "10px Arial";
             //context.fillText("Hello World", 10, 50);
