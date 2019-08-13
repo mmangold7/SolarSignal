@@ -44,6 +44,8 @@
         return -canvasHeight / 2;
     }
 
+    var firstUpdate = true;
+
     connection.on("GameState",
         function(bodies) {
             //center view on player
@@ -78,6 +80,11 @@
             //restore translation before next frame
             context.translate(trackerAndCanvasXOffset(), trackerAndCanvasYOffset());
             //console.log(bodies);
+
+            if (firstUpdate && displayOffsetBody !== "undefined" && displayOffsetBody !== null) {
+                togglePaused();
+                firstUpdate = false;
+            }
         });
 
     function drawGrid() {
@@ -192,7 +199,21 @@
     //https://stackoverflow.com/questions/5203407/how-to-detect-if-multiple-keys-are-pressed-at-once-using-javascript
     var keyMap = {};
 
+    function togglePaused() {
+        if (paused) {
+            connection.invoke("Resume").catch(function(err) {
+                return console.error(err.toString());
+            });
+        } else {
+            connection.invoke("Pause").catch(function(err) {
+                return console.error(err.toString());
+            });
+        }
+        paused = !paused;
+    };
+
     function handleKey(e) {
+
         e.preventDefault();
         keyMap[e.keyCode] = e.type === "keydown";
         if (keyMap[37]) {
@@ -224,16 +245,7 @@
             });
         }
         if (keyMap[80]) { //P
-            if (paused) {
-                connection.invoke("Resume").catch(function(err) {
-                    return console.error(err.toString());
-                });
-            } else {
-                connection.invoke("Pause").catch(function(err) {
-                    return console.error(err.toString());
-                });
-            }
-            paused = !paused;
+            togglePaused();
         }
         if (keyMap[70]) { //F
             shouldDrawFuturePaths = !shouldDrawFuturePaths;
@@ -269,4 +281,7 @@
 //if i've already calculated the next however many paths, why bother continuing to do so when i could just cache the future positions, perhaps by using an array indexed with the iteration of the main loop.
 //not only could i stop calculated futures, I could stop calculating the actual paths! just used the already calculated values
 //need to add unit tests so things don't break like the pause function or the grid etc
+//cache paths on the client rather than server
+//bug: it starts behaving the way i want with future paths after i hit increment or decrement via plus or minus. need that on all the time
+//think about how slower things get shorter paths. maybe path length should be constants not positions
 });

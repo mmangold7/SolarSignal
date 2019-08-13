@@ -28,7 +28,7 @@ namespace SolarSignal.SolarModels
 
         public List<Player> Players => Bodies.OfType<Player>().ToList();
 
-        private bool _paused;
+        private bool _paused = false;
         private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
 
         public Simulator(IServiceProvider serviceProvider)
@@ -53,7 +53,7 @@ namespace SolarSignal.SolarModels
                 Color = "purple",
                 Mass = 1,
                 Radius = 10,
-                Position = new Vector2(200, 200)
+                Position = new Vector2(250, 250)
             });
         }
 
@@ -216,6 +216,8 @@ namespace SolarSignal.SolarModels
             player.RightPressed = false;
             player.UpPressed = false;
             player.DownPressed = false;
+            player.FuturesIncremented = false;
+            player.FuturesDecremented = false;
         }
 
         private void HandlePlayerInput()
