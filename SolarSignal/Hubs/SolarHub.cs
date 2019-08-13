@@ -20,10 +20,7 @@ namespace SolarSignal.Hubs
         {
             UserHandler.ConnectedIds.Remove(Context.ConnectionId);
             Globals.Simulator.DestroyPlayerWithId(Context.ConnectionId);
-            if (UserHandler.ConnectedIds.Count == 0 && Globals.Simulator != null)
-            {
-                Globals.Simulator = null;
-            }
+            if (UserHandler.ConnectedIds.Count == 0 && Globals.Simulator != null) Globals.Simulator = null;
             await base.OnDisconnectedAsync(exception);
         }
 

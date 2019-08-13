@@ -237,17 +237,17 @@
         }
         if (keyMap[70]) { //F
             shouldDrawFuturePaths = !shouldDrawFuturePaths;
-            connection.invoke("ToggleCalculateFuturePaths").catch(function (err) {
+            connection.invoke("ToggleCalculateFuturePaths").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[107] || keyMap[187]) { //+
-            connection.invoke("IncreaseFuturesCalculations").catch(function (err) {
+            connection.invoke("IncreaseFuturesCalculations").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[109] || keyMap[189]) { //-
-            connection.invoke("DecreaseFuturesCalculations").catch(function (err) {
+            connection.invoke("DecreaseFuturesCalculations").catch(function(err) {
                 return console.error(err.toString());
             });
         }

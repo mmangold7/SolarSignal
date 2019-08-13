@@ -222,7 +222,9 @@ namespace SolarSignal.SolarModels
         {
             if (Players == null) return;
 
-            if (Players.TrueForAll(p => !p.DownPressed && !p.UpPressed && !p.FuturesIncremented && !p.FuturesDecremented) && _calculatedAtLeastOneFuture)
+            if (Players.TrueForAll(
+                    p => !p.DownPressed && !p.UpPressed && !p.FuturesIncremented && !p.FuturesDecremented) &&
+                _calculatedAtLeastOneFuture)
                 _alreadyCalculatedPaths = true;
             else
                 _alreadyCalculatedPaths = false;
