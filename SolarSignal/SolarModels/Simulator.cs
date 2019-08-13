@@ -147,15 +147,9 @@ namespace SolarSignal.SolarModels
             {
                 var displacement = otherBody.Position - body.Position;
                 var rSquared = displacement.LengthSquared();
-
-                var theta = Math.Atan2(displacement.Y, displacement.X);
-
-                //var deltaV = BigG * otherBody.Mass / rSquared;
-
-                var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
-                var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
-
-                body.Velocity += new Vector2(Convert.ToSingle(bodyXDeltaV), Convert.ToSingle(bodyYDeltaV));
+                var acceleration = Vector2.Multiply(Vector2.Normalize(displacement),
+                    Convert.ToSingle(BigG * otherBody.Mass / rSquared));
+                body.Velocity += acceleration;
             }
         }
 
