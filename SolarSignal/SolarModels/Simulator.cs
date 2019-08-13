@@ -17,19 +17,7 @@ namespace SolarSignal.SolarModels
 
         #endregion
 
-        #region ///  Fields  ///
-
-        public List<Body> Bodies;
-
-        public int FuturePositionsCount { get; set; } = 200;
-        public bool ShouldCalculateFuturePaths { get; set; } = false;
-
-        private readonly Random _playerIdGenerator = new Random();
-
-        public List<Player> Players => Bodies.OfType<Player>().ToList();
-
-        private bool _paused = false;
-        private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
+        #region ///  Constructors  ///
 
         public Simulator(IServiceProvider serviceProvider)
         {
@@ -45,49 +33,38 @@ namespace SolarSignal.SolarModels
             Bodies = bodies.ToList();
         }
 
-        public void CreatePlayerWithId(string id)
-        {
-            Bodies.Add(new Player
-            {
-                Id = id,
-                Color = "purple",
-                Mass = 1,
-                Radius = 10,
-                Position = new Vector2(250, 250)
-            });
-        }
+        #endregion
 
-        public void DestroyPlayerWithId(string id)
-        {
-            Bodies.Remove(Players.Single(p => p.Id == id));
-        }
+        #region ///  Fields  ///
+
+        private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
+        private readonly int FuturesCountIncrementSize = 50;
+        private readonly bool _shouldGravitatePlayers = true;
+        private bool _paused;
+        private bool _alreadyCalculatedPaths;
+        private bool _calculatedAtLeastOneFuture;
+
+        #endregion
+
+        #region ///  Properties  ///
+
+        public List<Body> Bodies;
+
+        public int FuturePositionsCount { get; set; } = 200;
+
+        public bool ShouldCalculateFuturePaths { get; set; } = false;
+
+        public List<Player> Players => Bodies.OfType<Player>().ToList();
 
         #endregion
 
         #region ///  Methods  ///
 
-        public void Pause()
+        private IEnumerable<Body> GetGravitatableBodies()
         {
-            _paused = true;
-        }
+            if (_shouldGravitatePlayers) return Bodies;
 
-        private readonly int FuturesCountIncrementSize = 50;
-
-        public void IncreaseFuturesCalculations()
-        {
-            FuturePositionsCount += FuturesCountIncrementSize;
-        }
-
-        public void DecreaseFuturesCalculations()
-        {
-            FuturePositionsCount -= FuturesCountIncrementSize;
-            if (FuturePositionsCount < 0) FuturePositionsCount = 0;
-        }
-
-        public void Resume()
-        {
-            _paused = false;
-            Simulate();
+            return Bodies.Where(b => b.GetType() != typeof(Player));
         }
 
         public async void Simulate()
@@ -103,121 +80,6 @@ namespace SolarSignal.SolarModels
                 foreach (var player in Players) ClearInputs(player);
                 await Task.Delay(1000 / 60);
             }
-        }
-
-        private void UpdateBodyPosition(Body body)
-        {
-            GravitateBody(body);
-            MoveBody(body);
-        }
-
-        private void MoveBody(Body body)
-        {
-            body.Position += body.Velocity;
-        }
-
-        private void GravitateBody(Body body)
-        {
-            foreach (var otherBody in Bodies.Where(b => b != body))
-            {
-                var displacement = otherBody.Position - body.Position;
-                var rSquared = displacement.LengthSquared();
-
-                var theta = Math.Atan2(displacement.Y, displacement.X);
-
-                //var deltaV = BigG * otherBody.Mass / rSquared;
-
-                var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
-                var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
-
-                body.Velocity += new Vector2(Convert.ToSingle(bodyXDeltaV), Convert.ToSingle(bodyYDeltaV));
-            }
-        }
-
-        private bool _alreadyCalculatedPaths;
-
-        //turn the code that updates position into a position-updater function that can be used in the simulation to get each future position vector
-        private void CalculateFuturePositions()
-        {
-            var originalPositions = new Dictionary<Body, Vector2>();
-            var originalVelocities = new Dictionary<Body, Vector2>();
-
-            foreach (var body in Bodies)
-            {
-                originalPositions.Add(body, body.Position);
-                originalVelocities.Add(body, body.Velocity);
-                body.FuturePositions = new List<Vector2>();
-            }
-
-            for (var i = 0; i < FuturePositionsCount; i++)
-                foreach (var body in Bodies)
-                {
-                    UpdateBodyPosition(body);
-                    body.FuturePositions.Add(body.Position);
-                }
-
-            foreach (var body in Bodies) body.Position = originalPositions[body];
-            foreach (var body in Bodies) body.Velocity = originalVelocities[body];
-
-            _calculatedAtLeastOneFuture = true;
-        }
-
-        private void AssignCircularOrbitVelocity(Body orbiter, Body parentBody)
-        {
-            var orbitRadius = Vector2.Distance(orbiter.Position, parentBody.Position);
-
-            var accelerationOfGravity = BigG * parentBody.Mass / Math.Pow(orbitRadius, 2);
-
-            var parentReferenceFrameOrbitingXVelocity =
-                Convert.ToSingle(Math.Sqrt(orbitRadius * accelerationOfGravity));
-
-            orbiter.Velocity = new Vector2(parentReferenceFrameOrbitingXVelocity, 0);
-
-            if (parentBody.ParentBody == null) return;
-
-            AssignCircularOrbitVelocity(orbiter, parentBody.ParentBody);
-        }
-
-        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, double mass, double radius,
-            string color, string name)
-        {
-            var orbiter = new Body
-            {
-                Name = name,
-                Mass = mass,
-                Radius = radius,
-                Color = color,
-                Position = new Vector2(parentBody.Position.X, parentBody.Position.Y + orbitRadius),
-                Velocity = new Vector2(0, 0)
-            };
-
-            AssignCircularOrbitVelocity(orbiter, parentBody);
-
-            Bodies.Add(orbiter);
-
-            orbiter.ParentBody = parentBody;
-
-            return orbiter;
-        }
-
-        private readonly bool _shouldGravitatePlayers = true;
-        private bool _calculatedAtLeastOneFuture;
-
-        private IEnumerable<Body> GetGravitatableBodies()
-        {
-            if (_shouldGravitatePlayers) return Bodies;
-
-            return Bodies.Where(b => b.GetType() != typeof(Player));
-        }
-
-        private void ClearInputs(Player player)
-        {
-            player.LeftPressed = false;
-            player.RightPressed = false;
-            player.UpPressed = false;
-            player.DownPressed = false;
-            player.FuturesIncremented = false;
-            player.FuturesDecremented = false;
         }
 
         private void HandlePlayerInput()
@@ -256,6 +118,147 @@ namespace SolarSignal.SolarModels
                     player.Velocity += deltaV;
                 else if (downPressed) player.Velocity -= deltaV;
             }
+        }
+
+        private void ClearInputs(Player player)
+        {
+            player.LeftPressed = false;
+            player.RightPressed = false;
+            player.UpPressed = false;
+            player.DownPressed = false;
+            player.FuturesIncremented = false;
+            player.FuturesDecremented = false;
+        }
+
+        private void UpdateBodyPosition(Body body)
+        {
+            GravitateBody(body);
+            MoveBody(body);
+        }
+
+        private void MoveBody(Body body)
+        {
+            body.Position += body.Velocity;
+        }
+
+        private void GravitateBody(Body body)
+        {
+            foreach (var otherBody in Bodies.Where(b => b != body))
+            {
+                var displacement = otherBody.Position - body.Position;
+                var rSquared = displacement.LengthSquared();
+
+                var theta = Math.Atan2(displacement.Y, displacement.X);
+
+                //var deltaV = BigG * otherBody.Mass / rSquared;
+
+                var bodyXDeltaV = BigG * otherBody.Mass / rSquared * Math.Cos(theta);
+                var bodyYDeltaV = BigG * otherBody.Mass / rSquared * Math.Sin(theta);
+
+                body.Velocity += new Vector2(Convert.ToSingle(bodyXDeltaV), Convert.ToSingle(bodyYDeltaV));
+            }
+        }
+
+        private void CalculateFuturePositions()
+        {
+            var originalPositions = new Dictionary<Body, Vector2>();
+            var originalVelocities = new Dictionary<Body, Vector2>();
+
+            foreach (var body in Bodies)
+            {
+                originalPositions.Add(body, body.Position);
+                originalVelocities.Add(body, body.Velocity);
+                body.FuturePositions = new List<Vector2>();
+            }
+
+            for (var i = 0; i < FuturePositionsCount; i++)
+                foreach (var body in Bodies)
+                {
+                    UpdateBodyPosition(body);
+                    body.FuturePositions.Add(body.Position);
+                }
+
+            foreach (var body in Bodies) body.Position = originalPositions[body];
+            foreach (var body in Bodies) body.Velocity = originalVelocities[body];
+
+            _calculatedAtLeastOneFuture = true;
+        }
+
+        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, double mass, double radius,
+            string color, string name)
+        {
+            var orbiter = new Body
+            {
+                Name = name,
+                Mass = mass,
+                Radius = radius,
+                Color = color,
+                Position = new Vector2(parentBody.Position.X, parentBody.Position.Y + orbitRadius),
+                Velocity = new Vector2(0, 0)
+            };
+
+            AssignCircularOrbitVelocity(orbiter, parentBody);
+
+            Bodies.Add(orbiter);
+
+            orbiter.ParentBody = parentBody;
+
+            return orbiter;
+        }
+
+        private void AssignCircularOrbitVelocity(Body orbiter, Body parentBody)
+        {
+            var orbitRadius = Vector2.Distance(orbiter.Position, parentBody.Position);
+
+            var accelerationOfGravity = BigG * parentBody.Mass / Math.Pow(orbitRadius, 2);
+
+            var parentReferenceFrameOrbitingXVelocity =
+                Convert.ToSingle(Math.Sqrt(orbitRadius * accelerationOfGravity));
+
+            orbiter.Velocity = new Vector2(parentReferenceFrameOrbitingXVelocity, 0);
+
+            if (parentBody.ParentBody == null) return;
+
+            AssignCircularOrbitVelocity(orbiter, parentBody.ParentBody);
+        }
+
+        public void CreatePlayerWithId(string id)
+        {
+            Bodies.Add(new Player
+            {
+                Id = id,
+                Color = "purple",
+                Mass = 1,
+                Radius = 10,
+                Position = new Vector2(250, 250)
+            });
+        }
+
+        public void DestroyPlayerWithId(string id)
+        {
+            Bodies.Remove(Players.Single(p => p.Id == id));
+        }
+
+        public void Pause()
+        {
+            _paused = true;
+        }
+
+        public void Resume()
+        {
+            _paused = false;
+            Simulate();
+        }
+
+        public void IncreaseFuturesCalculations()
+        {
+            FuturePositionsCount += FuturesCountIncrementSize;
+        }
+
+        public void DecreaseFuturesCalculations()
+        {
+            FuturePositionsCount -= FuturesCountIncrementSize;
+            if (FuturePositionsCount < 0) FuturePositionsCount = 0;
         }
 
         #endregion
