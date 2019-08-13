@@ -268,4 +268,5 @@
 //todo:allow customizing ship colors and maybe appearance
 //if i've already calculated the next however many paths, why bother continuing to do so when i could just cache the future positions, perhaps by using an array indexed with the iteration of the main loop.
 //not only could i stop calculated futures, I could stop calculating the actual paths! just used the already calculated values
+//need to add unit tests so things don't break like the pause function or the grid etc
 });
