@@ -1,34 +1,34 @@
 ﻿$(document).ready(function() {
     "use strict";
 
+    //canvas stuff
     var canvas = document.getElementById("imgCanvas");
     var canvasWidth = canvas.width;
     var canvasHeight = canvas.height;
     var context = canvas.getContext("2d");
 
+    //"global" vars
+    var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
+    var playerId;
     var debugEnabled = false;
     var paused = false;
     var shouldDrawFuturePaths = false;
-
-    var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
-
-    var playerId;
+    var displayOffsetBody;
+    var firstUpdate = true;
 
     //Disable send button until connection is established
     document.getElementById("sendButton").disabled = true;
-
     //going to try to make 1 pixel = 1 million kilometers approx in distance between bodies
 
-    var displayOffsetBody;
-
-    connection.on("Message",
-        function(user, message) {
-            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var encodedMsg = user + " says " + msg;
-            var li = document.createElement("li");
-            li.textContent = encodedMsg;
-            document.getElementById("messagesList").appendChild(li);
-        });
+    connection.start().then(function() {
+        connection.invoke("GetConnectionId")
+            .then(function(connectionId) {
+                playerId = connectionId;
+            });
+        document.getElementById("sendButton").disabled = false;
+    }).catch(function(err) {
+        return console.error(err.toString());
+    });
 
     function trackerAndCanvasXOffset() {
         if (typeof displayOffsetBody !== "undefined") {
@@ -43,8 +43,6 @@
         }
         return -canvasHeight / 2;
     }
-
-    var firstUpdate = true;
 
     connection.on("GameState",
         function(bodies) {
@@ -173,44 +171,11 @@
         }
     }
 
-    connection.start().then(function() {
-        connection.invoke("GetConnectionId")
-            .then(function(connectionId) {
-                playerId = connectionId;
-            });
-        document.getElementById("sendButton").disabled = false;
-    }).catch(function(err) {
-        return console.error(err.toString());
-    });
-
-    document.getElementById("sendButton").addEventListener("click",
-        function(event) {
-            var user = document.getElementById("userInput").value;
-            var message = document.getElementById("messageInput").value;
-            connection.invoke("Message", user, message).catch(function(err) {
-                return console.error(err.toString());
-            });
-            event.preventDefault();
-        });
-
     window.addEventListener("keydown", handleKey, false);
     window.addEventListener("keyup", handleKey, false);
 
     //https://stackoverflow.com/questions/5203407/how-to-detect-if-multiple-keys-are-pressed-at-once-using-javascript
     var keyMap = {};
-
-    function togglePaused() {
-        if (paused) {
-            connection.invoke("Resume").catch(function(err) {
-                return console.error(err.toString());
-            });
-        } else {
-            connection.invoke("Pause").catch(function(err) {
-                return console.error(err.toString());
-            });
-        }
-        paused = !paused;
-    };
 
     function handleKey(e) {
 
@@ -265,15 +230,37 @@
         }
     }
 
-    function forwardBoosting() { return keyMap[38] };
+    function togglePaused() {
+        if (paused) {
+            connection.invoke("Resume").catch(function(err) {
+                return console.error(err.toString());
+            });
+        } else {
+            connection.invoke("Pause").catch(function(err) {
+                return console.error(err.toString());
+            });
+        }
+        paused = !paused;
+    };
 
-    function backwardBoosting() { return keyMap[40] };
+    connection.on("Message",
+        function(user, message) {
+            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            var encodedMsg = user + " says " + msg;
+            var li = document.createElement("li");
+            li.textContent = encodedMsg;
+            document.getElementById("messagesList").appendChild(li);
+        });
 
-    function leftTurning() { return keyMap[37] };
-
-    function rightTurning() { return keyMap[39] };
-
-    function shooting() { return keyMap[32] };
+    document.getElementById("sendButton").addEventListener("click",
+        function(event) {
+            var user = document.getElementById("userInput").value;
+            var message = document.getElementById("messageInput").value;
+            connection.invoke("Message", user, message).catch(function(err) {
+                return console.error(err.toString());
+            });
+            event.preventDefault();
+        });
 
 //todo: write a left click handler that changes the display offset body to the clicked body
 //todo:add floating indicators for player names and integrate chat with the game
