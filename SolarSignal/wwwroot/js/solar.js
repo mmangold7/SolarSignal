@@ -32,14 +32,14 @@
 
     function trackerAndCanvasXOffset() {
         if (typeof displayOffsetBody !== "undefined") {
-            return displayOffsetBody.xPosition - canvasWidth / 2;
+            return displayOffsetBody.position.x - canvasWidth / 2;
         }
         return -canvasWidth / 2;
     }
 
     function trackerAndCanvasYOffset() {
         if (typeof displayOffsetBody !== "undefined") {
-            return displayOffsetBody.yPosition - canvasHeight / 2;
+            return displayOffsetBody.position.y - canvasHeight / 2;
         }
         return -canvasHeight / 2;
     }
@@ -59,7 +59,7 @@
 
             //translate origin to the tracked body/ship
             context.translate(-trackerAndCanvasXOffset(), -trackerAndCanvasYOffset());
-
+            console.log(bodies.filter(b => b.name == "moon")[0]);
             //draw debug info
             //context.font = "10px Arial";
             //context.fillText("Hello World", 10, 50);
@@ -103,37 +103,37 @@
             context.save();
 
             //rotate drawing plane to match ship angle
-            context.translate(body.xPosition, body.yPosition);
+            context.translate(body.position.x, body.position.y);
             context.rotate(body.angle * Math.PI / 180);
-            context.translate(-body.xPosition, -body.yPosition);
+            context.translate(-body.position.x, -body.position.y);
 
             //draw ship body
-            context.moveTo(body.xPosition + body.radius, body.yPosition);
-            context.lineTo(body.xPosition - body.radius, body.yPosition - body.radius);
-            context.lineTo(body.xPosition - body.radius, body.yPosition + body.radius);
+            context.moveTo(body.position.x + body.radius, body.position.y);
+            context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
+            context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
             context.fillStyle = body.color;
             context.fill();
 
             //draw effects
             if (body.upPressed) {
-                context.moveTo(body.xPosition - body.radius, body.yPosition);
-                context.lineTo(body.xPosition - body.radius - body.radius * 3, body.yPosition);
+                context.moveTo(body.position.x - body.radius, body.position.y);
+                context.lineTo(body.position.x - body.radius - body.radius * 3, body.position.y);
             }
             if (body.downPressed) {
-                context.moveTo(body.xPosition + body.radius, body.yPosition);
-                context.lineTo(body.xPosition + body.radius + body.radius * 3, body.yPosition);
+                context.moveTo(body.position.x + body.radius, body.position.y);
+                context.lineTo(body.position.x + body.radius + body.radius * 3, body.position.y);
             }
             if (body.leftPressed) {
-                context.moveTo(body.xPosition + body.radius, body.yPosition);
-                context.lineTo(body.xPosition + body.radius, body.yPosition + body.radius * 1.5);
-                context.moveTo(body.xPosition - body.radius, body.yPosition - body.radius);
-                context.lineTo(body.xPosition - body.radius, body.yPosition - body.radius - body.radius * 0.5);
+                context.moveTo(body.position.x + body.radius, body.position.y);
+                context.lineTo(body.position.x + body.radius, body.position.y + body.radius * 1.5);
+                context.moveTo(body.position.x - body.radius, body.position.y - body.radius);
+                context.lineTo(body.position.x - body.radius, body.position.y - body.radius - body.radius * 0.5);
             }
             if (body.rightPressed) {
-                context.moveTo(body.xPosition + body.radius, body.yPosition);
-                context.lineTo(body.xPosition + body.radius, body.yPosition - body.radius * 1.5);
-                context.moveTo(body.xPosition - body.radius, body.yPosition + body.radius);
-                context.lineTo(body.xPosition - body.radius, body.yPosition + body.radius + body.radius * 0.5);
+                context.moveTo(body.position.x + body.radius, body.position.y);
+                context.lineTo(body.position.x + body.radius, body.position.y - body.radius * 1.5);
+                context.moveTo(body.position.x - body.radius, body.position.y + body.radius);
+                context.lineTo(body.position.x - body.radius, body.position.y + body.radius + body.radius * 0.5);
             }
             context.strokeStyle = "blue";
             context.stroke();
@@ -141,8 +141,8 @@
             //restore rotation
             context.restore();
         } else { //else if celestial body
-            context.arc(body.xPosition,
-                body.yPosition,
+            context.arc(body.position.x,
+                body.position.y,
                 body.radius,
                 0,
                 2 * Math.PI);
@@ -266,4 +266,6 @@
 //todo: write a left click handler that changes the display offset body to the clicked body
 //todo:add floating indicators for player names and integrate chat with the game
 //todo:allow customizing ship colors and maybe appearance
+//if i've already calculated the next however many paths, why bother continuing to do so when i could just cache the future positions, perhaps by using an array indexed with the iteration of the main loop.
+//not only could i stop calculated futures, I could stop calculating the actual paths! just used the already calculated values
 });

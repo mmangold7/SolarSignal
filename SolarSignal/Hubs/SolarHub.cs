@@ -92,11 +92,13 @@ namespace SolarSignal.Hubs
 
         public async Task IncreaseFuturesCalculations()
         {
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesIncremented = true;
             Globals.Simulator.IncreaseFuturesCalculations();
         }
 
         public async Task DecreaseFuturesCalculations()
         {
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesDecremented = true;
             Globals.Simulator.DecreaseFuturesCalculations();
         }
 

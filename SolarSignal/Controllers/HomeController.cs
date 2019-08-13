@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SolarSignal.Models;
@@ -42,10 +43,8 @@ namespace SolarSignal.Controllers
                 Name = "sun",
                 Mass = 330000,
                 Radius = 30,
-                XPosition = 0,
-                YPosition = 0,
-                XVelocity = 0,
-                YVelocity = 0,
+                Position = new Vector2(0, 0),
+                Velocity = new Vector2(0, 0),
                 Color = "Yellow"
             };
             simulator.Bodies.Add(sun);
@@ -54,7 +53,7 @@ namespace SolarSignal.Controllers
             var earth = simulator.CreateCircularOrbiterOf(sun, 300, 50000, 3, "blue", "earth");
 
             //make the moon
-            var moon = simulator.CreateCircularOrbiterOf(earth, 15, .1, 1, "white", "moon");
+            var moon = simulator.CreateCircularOrbiterOf(earth, 35, .1, 3, "white", "moon");
 
             //simulator.Bodies.Remove(sun);
 
