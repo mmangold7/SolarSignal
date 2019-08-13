@@ -7,8 +7,8 @@ namespace SolarSignal.SolarModels
     {
         #region ///  Properties  ///
 
-        public Vector2 AngleVector => new Vector2(Convert.ToSingle(Math.Cos(Angle * Math.PI / 180))
-            , Convert.ToSingle(Math.Sin(Angle * Math.PI / 180)));
+        public Vector2 AngleVector => Vector2.Normalize(new Vector2(Convert.ToSingle(Math.Cos(Angle * Math.PI / 180))
+            , Convert.ToSingle(Math.Sin(Angle * Math.PI / 180))));
 
         public string Id { get; set; }
         public int Angle { get; set; }

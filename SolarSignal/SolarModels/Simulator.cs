@@ -60,7 +60,7 @@ namespace SolarSignal.SolarModels
 
         #region ///  Methods  ///
 
-        private IEnumerable<Body> GetGravitatableBodies()
+        private IEnumerable<Body> GetBodiesToGravitate()
         {
             if (_shouldGravitatePlayers) return Bodies;
 
@@ -73,7 +73,7 @@ namespace SolarSignal.SolarModels
             {
                 HandlePlayerInput();
                 if (Bodies == null) break;
-                foreach (var body in GetGravitatableBodies()) UpdateBodyPosition(body);
+                foreach (var body in GetBodiesToGravitate()) UpdateBodyPosition(body);
                 if (ShouldCalculateFuturePaths && FuturePositionsCount > 0 && !_alreadyCalculatedPaths)
                     CalculateFuturePositions();
                 await _hubContext.Clients.All.GameState(Bodies);
@@ -99,24 +99,12 @@ namespace SolarSignal.SolarModels
                 player.Angle += Convert.ToInt32(player.RightPressed) * 5;
 
                 if (player.Angle > 360) player.Angle -= 360;
-
                 if (player.Angle < 0) player.Angle += 360;
 
-                var upPressed = player.UpPressed;
-                var downPressed = player.DownPressed;
-
-                if (upPressed && downPressed)
-                {
-                    ClearInputs(player);
-                    return;
-                }
-
-                var scaleMagnitude = 5 / 30f;
+                var scaleMagnitude = 5 / 30f * (Convert.ToInt32(player.UpPressed) - Convert.ToInt32(player.DownPressed));
                 var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
 
-                if (upPressed)
-                    player.Velocity += deltaV;
-                else if (downPressed) player.Velocity -= deltaV;
+                player.Velocity += deltaV;
             }
         }
 
