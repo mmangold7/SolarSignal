@@ -27,8 +27,13 @@ namespace SolarSignal.Hubs
         public override async Task OnConnectedAsync()
         {
             UserHandler.ConnectedIds.Add(Context.ConnectionId);
-            Globals.Simulator.CreatePlayerWithId(Context.ConnectionId);
             await base.OnConnectedAsync();
+        }
+
+        public async Task CreatePlayerWithId(string connectionId, string rgbColor)
+        {
+            if(UserHandler.ConnectedIds.Contains(connectionId))
+                Globals.Simulator.CreatePlayerWithId(connectionId, rgbColor);
         }
 
         public string GetConnectionId()

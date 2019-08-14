@@ -15,7 +15,8 @@
     var shouldDrawFuturePaths = false;
     var displayOffsetBody;
     var firstUpdate = true;
-    var cachedBodyFutures = {}
+    var cachedBodyFutures = {};
+    var isBuildingShip = true;
 
     //Disable send button until connection is established
     document.getElementById("sendButton").disabled = true;
@@ -31,9 +32,21 @@
         return console.error(err.toString());
     });
 
+    $("#playButton").click(function() {
+        var colorPickerColor = $("#shipColorPicker").css("background-color");
+        console.log(playerId);
+        console.log($("#shipColorPicker").css("color"));
+        connection.invoke("CreatePlayerWithId", playerId, colorPickerColor).then(function() {
+            isBuildingShip = false;
+        }).catch(function(err) {
+            return console.error(err.toString());
+        });
+    });
+
+
     var keyMap = {};
     connection.on("GameState",
-        function (bodies, alreadyCalculatedPaths) {
+        function(bodies, alreadyCalculatedPaths) {
             //center view on player
             displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
 
@@ -61,7 +74,7 @@
             //draw future paths
             if (shouldDrawFuturePaths) {
                 if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
-                    Object.keys(cachedBodyFutures).forEach(function (bodyName) {
+                    Object.keys(cachedBodyFutures).forEach(function(bodyName) {
                         drawFuturePaths(cachedBodyFutures[bodyName], bodies.filter(b => b.name == bodyName)[0].color);
                     });
                 } else {
@@ -78,17 +91,33 @@
                 firstUpdate = false;
             }
 
-            bodies.forEach(function (body) {
+            bodies.forEach(function(body) {
                 if (body.futurePositions !== undefined && body.futurePositions !== null) {
                     cachedBodyFutures[body.name] = body.futurePositions;
                 }
             });
 
-            var inputKeyMap = { "LeftPressed": keyMap[37], "UpPressed": keyMap[38], "RightPressed": keyMap[39], "DownPressed": keyMap[40]}
+            if (!isBuildingShip) {
+                var inputKeyMap = {
+                    "LeftPressed": keyMap[37],
+                    "UpPressed": keyMap[38],
+                    "RightPressed": keyMap[39],
+                    "DownPressed": keyMap[40]
+                };
 
-            connection.invoke("Input", inputKeyMap).catch(function (err) {
-                return console.error(err.toString());
-            });
+                connection.invoke("Input", inputKeyMap).catch(function(err) {
+                    return console.error(err.toString());
+                });
+            }
+            if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
+                Object.keys(cachedBodyFutures).forEach(function (bodyName) {
+                    cachedBodyFutures[bodyName].shift();
+                });
+
+                cachedBodyFutures.forEach(function(future) {
+                    future.shift();
+                });
+            };
         });
 
     function drawGrid() {
@@ -113,6 +142,8 @@
             //draw a triangle shaped ship
             context.save();
 
+            context.strokeStyle = body.color;
+
             //rotate drawing plane to match ship angle
             context.translate(body.position.x, body.position.y);
             context.rotate(body.angle * Math.PI / 180);
@@ -122,6 +153,7 @@
             context.moveTo(body.position.x + body.radius, body.position.y);
             context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
             context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
+            
             context.fillStyle = body.color;
             context.fill();
 
@@ -146,7 +178,7 @@
                 context.moveTo(body.position.x - body.radius, body.position.y + body.radius);
                 context.lineTo(body.position.x - body.radius, body.position.y + body.radius + body.radius * 0.5);
             }
-            context.strokeStyle = "blue";
+            context.strokeStyle = "yellow";
             context.stroke();
 
             //restore rotation
@@ -285,4 +317,5 @@
 //cache paths on the client rather than server
 //bug: it starts behaving the way i want with future paths after i hit increment or decrement via plus or minus. need that on all the time
 //think about how slower things get shorter paths. maybe path length should be constants not positions
+//idea:velocity dependent line colors. make the points colored based on the velocity magnitude of the body at the simulated point. wow that would be easy! lol
 });

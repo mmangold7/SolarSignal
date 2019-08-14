@@ -10,5 +10,11 @@
         "dist/browser/signalr.min.js"
       ]
     }
-  ]
+  ,
+{
+  "provider": "cdnjs",
+  "library": "tinyColorPicker@1.1.1",
+  "destination": "wwwroot/lib/tinyColorPicker/"
+}
+]
 }

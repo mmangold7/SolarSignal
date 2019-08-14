@@ -11,15 +11,15 @@
     <div class="row">
         <div class="col-6">&nbsp;</div>
         <div class="col-6">
-            User..........<input type="text" id="userInput"/>
-            <br/>
-            Message...<input type="text" id="messageInput"/>
-            <input type="button" id="sendButton" value="Send Message"/>
+            User..........<input type="text" id="userInput" />
+            <br />
+            Message...<input type="text" id="messageInput" />
+            <input type="button" id="sendButton" value="Send Message" />
         </div>
     </div>
     <div class="row">
         <div class="col-12">
-            <hr/>
+            <hr />
         </div>
     </div>
     <div class="row">
@@ -30,6 +30,17 @@
     </div>
 </div>
 
+<label for="shipColor">Ship Color:</label>
+<input type="text" class="color" id="shipColorPicker" />
+@*<label for="playerName">Player Name:</label>
+<input type="text" />*@
+<input type="button" id="playButton" value="Play" />
+
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/tinyColorPicker/colors.js"></script>
+<script src="~/lib/tinyColorPicker/jqColorPicker.js"></script>
+<script type="text/javascript">
+    $('.color').colorPicker();
+</script>
 <script src="~/js/solar.js"></script>

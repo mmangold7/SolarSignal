@@ -210,13 +210,13 @@ namespace SolarSignal.SolarModels
             AssignCircularOrbitVelocity(orbiter, parentBody.ParentBody);
         }
 
-        public void CreatePlayerWithId(string id)
+        public void CreatePlayerWithId(string id, string rgbColor)
         {
             Bodies.Add(new Player
             {
                 Id = id,
                 Name = id,
-                Color = "purple",
+                Color = rgbColor,
                 Mass = 1,
                 Radius = 10,
                 Position = new Vector2(250, 250),
