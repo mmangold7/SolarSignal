@@ -6,7 +6,7 @@ namespace SolarSignal.Hubs
 {
     public interface ISolarHub
     {
-        Task GameState(List<Body> bodies);
+        Task GameState(List<Body> bodies, bool alreadyCalculatedPaths);
         Task Message(string user, string message);
         Task Left();
         Task Right();

@@ -13,7 +13,8 @@ namespace SolarSignal.SolarModels
     {
         #region ///  Constants  ///
 
-        private const double BigG = .001;
+        private const double BigG = .0002;
+        private const int Fps = 240;
 
         #endregion
 
@@ -38,7 +39,7 @@ namespace SolarSignal.SolarModels
         #region ///  Fields  ///
 
         private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
-        private readonly int FuturesCountIncrementSize = 50;
+        private readonly int FuturesCountIncrementSize = 100;
         private readonly bool _shouldGravitatePlayers = true;
         private bool _paused;
         private bool _alreadyCalculatedPaths;
@@ -76,9 +77,12 @@ namespace SolarSignal.SolarModels
                 foreach (var body in GetBodiesToGravitate()) UpdateBodyPosition(body);
                 if (ShouldCalculateFuturePaths && FuturePositionsCount > 0 && !_alreadyCalculatedPaths)
                     CalculateFuturePositions();
-                await _hubContext.Clients.All.GameState(Bodies);
+                else
+                    foreach (var body in GetBodiesToGravitate())
+                        body.FuturePositions = null;
+                await _hubContext.Clients.All.GameState(Bodies, _alreadyCalculatedPaths);
                 foreach (var player in Players) ClearInputs(player);
-                await Task.Delay(1000 / 60);
+                await Task.Delay(1000 / Fps);
             }
         }
 
@@ -101,7 +105,8 @@ namespace SolarSignal.SolarModels
                 if (player.Angle > 360) player.Angle -= 360;
                 if (player.Angle < 0) player.Angle += 360;
 
-                var scaleMagnitude = 5 / 30f * (Convert.ToInt32(player.UpPressed) - Convert.ToInt32(player.DownPressed));
+                var scaleMagnitude =
+                    5 / 30f * (Convert.ToInt32(player.UpPressed) - Convert.ToInt32(player.DownPressed));
                 var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
 
                 player.Velocity += deltaV;
@@ -209,6 +214,7 @@ namespace SolarSignal.SolarModels
             Bodies.Add(new Player
             {
                 Id = id,
+                Name = id,
                 Color = "purple",
                 Mass = 1,
                 Radius = 10,

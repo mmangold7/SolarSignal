@@ -7,7 +7,7 @@
     var canvasHeight = canvas.height;
     var context = canvas.getContext("2d");
 
-    //"global" vars
+    //other "global" vars
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
     var playerId;
     var debugEnabled = false;
@@ -15,6 +15,7 @@
     var shouldDrawFuturePaths = false;
     var displayOffsetBody;
     var firstUpdate = true;
+    var cachedBodyFutures = {}
 
     //Disable send button until connection is established
     document.getElementById("sendButton").disabled = true;
@@ -30,22 +31,8 @@
         return console.error(err.toString());
     });
 
-    function trackerAndCanvasXOffset() {
-        if (typeof displayOffsetBody !== "undefined") {
-            return displayOffsetBody.position.x - canvasWidth / 2;
-        }
-        return -canvasWidth / 2;
-    }
-
-    function trackerAndCanvasYOffset() {
-        if (typeof displayOffsetBody !== "undefined") {
-            return displayOffsetBody.position.y - canvasHeight / 2;
-        }
-        return -canvasHeight / 2;
-    }
-
     connection.on("GameState",
-        function(bodies) {
+        function (bodies, alreadyCalculatedPaths) {
             //center view on player
             displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
 
@@ -72,7 +59,13 @@
 
             //draw future paths
             if (shouldDrawFuturePaths) {
-                bodies.forEach(body => drawFuturePaths(body));
+                if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
+                    Object.keys(cachedBodyFutures).forEach(function (bodyName) {
+                        drawFuturePaths(cachedBodyFutures[bodyName], bodies.filter(b => b.name == bodyName)[0].color);
+                    });
+                } else {
+                    bodies.forEach(body => drawFuturePaths(body.futurePositions, body.color));
+                }
             }
 
             //restore translation before next frame
@@ -83,6 +76,12 @@
                 togglePaused();
                 firstUpdate = false;
             }
+
+            bodies.forEach(function (body) {
+                if (body.futurePositions !== undefined && body.futurePositions !== null) {
+                    cachedBodyFutures[body.name] = body.futurePositions;
+                }
+            });
         });
 
     function drawGrid() {
@@ -156,8 +155,7 @@
         }
     }
 
-    function drawFuturePaths(body) {
-        var futures = body.futurePositions;
+    function drawFuturePaths(futures, color) {
         if (futures !== "undefined" && futures !== null && futures.length !== 0) {
             context.beginPath();
             var firstPosition = futures[0];
@@ -166,9 +164,23 @@
                 var nextPosition = futures[i];
                 context.lineTo(nextPosition.x, nextPosition.y);
             }
-            context.strokeStyle = body.color;
+            context.strokeStyle = color;
             context.stroke();
         }
+    }
+
+    function trackerAndCanvasXOffset() {
+        if (typeof displayOffsetBody !== "undefined") {
+            return displayOffsetBody.position.x - canvasWidth / 2;
+        }
+        return -canvasWidth / 2;
+    }
+
+    function trackerAndCanvasYOffset() {
+        if (typeof displayOffsetBody !== "undefined") {
+            return displayOffsetBody.position.y - canvasHeight / 2;
+        }
+        return -canvasHeight / 2;
     }
 
     window.addEventListener("keydown", handleKey, false);
@@ -178,52 +190,60 @@
     var keyMap = {};
 
     function handleKey(e) {
-
-        e.preventDefault();
         keyMap[e.keyCode] = e.type === "keydown";
         if (keyMap[37]) {
+            e.preventDefault();
             connection.invoke("Left").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[38]) {
+            e.preventDefault();
             connection.invoke("Up").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[39]) {
+            e.preventDefault();
             connection.invoke("Right").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[40]) {
+            e.preventDefault();
             connection.invoke("Down").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[68]) { //D
+            e.preventDefault();
             debugEnabled = !debugEnabled;
         }
         if (keyMap[32]) { //Space
+            e.preventDefault();
             connection.invoke("Shoot").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[80]) { //P
+            e.preventDefault();
             togglePaused();
         }
         if (keyMap[70]) { //F
+            e.preventDefault();
             shouldDrawFuturePaths = !shouldDrawFuturePaths;
             connection.invoke("ToggleCalculateFuturePaths").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[107] || keyMap[187]) { //+
+            e.preventDefault();
             connection.invoke("IncreaseFuturesCalculations").catch(function(err) {
                 return console.error(err.toString());
             });
         }
         if (keyMap[109] || keyMap[189]) { //-
+            e.preventDefault();
             connection.invoke("DecreaseFuturesCalculations").catch(function(err) {
                 return console.error(err.toString());
             });

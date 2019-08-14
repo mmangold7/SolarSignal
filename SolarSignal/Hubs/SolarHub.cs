@@ -36,9 +36,9 @@ namespace SolarSignal.Hubs
             return Context.ConnectionId;
         }
 
-        public async Task GameState(List<Body> bodies)
+        public async Task GameState(List<Body> bodies, bool alreadyCalculatedPaths)
         {
-            await Clients.All.GameState(bodies);
+            await Clients.All.GameState(bodies, alreadyCalculatedPaths);
         }
 
         public async Task Message(string user, string message)
