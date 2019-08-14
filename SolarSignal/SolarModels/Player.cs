@@ -12,14 +12,9 @@ namespace SolarSignal.SolarModels
 
         public string Id { get; set; }
         public int Angle { get; set; }
-        public bool DownPressed { get; set; }
-        public bool LeftMousePressed { get; set; }
-        public bool LeftPressed { get; set; }
-        public bool RightMousePressed { get; set; }
-        public bool RightPressed { get; set; }
-        public bool UpPressed { get; set; }
         public bool FuturesIncremented { get; set; }
         public bool FuturesDecremented { get; set; }
+        public Input Input { get; set; }
 
         #endregion
     }

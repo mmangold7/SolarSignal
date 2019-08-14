@@ -31,6 +31,7 @@
         return console.error(err.toString());
     });
 
+    var keyMap = {};
     connection.on("GameState",
         function (bodies, alreadyCalculatedPaths) {
             //center view on player
@@ -82,6 +83,12 @@
                     cachedBodyFutures[body.name] = body.futurePositions;
                 }
             });
+
+            var inputKeyMap = { "LeftPressed": keyMap[37], "UpPressed": keyMap[38], "RightPressed": keyMap[39], "DownPressed": keyMap[40]}
+
+            connection.invoke("Input", inputKeyMap).catch(function (err) {
+                return console.error(err.toString());
+            });
         });
 
     function drawGrid() {
@@ -119,21 +126,21 @@
             context.fill();
 
             //draw effects
-            if (body.upPressed) {
+            if (body.input.upPressed) {
                 context.moveTo(body.position.x - body.radius, body.position.y);
                 context.lineTo(body.position.x - body.radius - body.radius * 3, body.position.y);
             }
-            if (body.downPressed) {
+            if (body.input.downPressed) {
                 context.moveTo(body.position.x + body.radius, body.position.y);
                 context.lineTo(body.position.x + body.radius + body.radius * 3, body.position.y);
             }
-            if (body.leftPressed) {
+            if (body.input.leftPressed) {
                 context.moveTo(body.position.x + body.radius, body.position.y);
                 context.lineTo(body.position.x + body.radius, body.position.y + body.radius * 1.5);
                 context.moveTo(body.position.x - body.radius, body.position.y - body.radius);
                 context.lineTo(body.position.x - body.radius, body.position.y - body.radius - body.radius * 0.5);
             }
-            if (body.rightPressed) {
+            if (body.input.rightPressed) {
                 context.moveTo(body.position.x + body.radius, body.position.y);
                 context.lineTo(body.position.x + body.radius, body.position.y - body.radius * 1.5);
                 context.moveTo(body.position.x - body.radius, body.position.y + body.radius);
@@ -187,33 +194,20 @@
     window.addEventListener("keyup", handleKey, false);
 
     //https://stackoverflow.com/questions/5203407/how-to-detect-if-multiple-keys-are-pressed-at-once-using-javascript
-    var keyMap = {};
 
     function handleKey(e) {
         keyMap[e.keyCode] = e.type === "keydown";
         if (keyMap[37]) {
             e.preventDefault();
-            connection.invoke("Left").catch(function(err) {
-                return console.error(err.toString());
-            });
         }
         if (keyMap[38]) {
             e.preventDefault();
-            connection.invoke("Up").catch(function(err) {
-                return console.error(err.toString());
-            });
         }
         if (keyMap[39]) {
             e.preventDefault();
-            connection.invoke("Right").catch(function(err) {
-                return console.error(err.toString());
-            });
         }
         if (keyMap[40]) {
             e.preventDefault();
-            connection.invoke("Down").catch(function(err) {
-                return console.error(err.toString());
-            });
         }
         if (keyMap[68]) { //D
             e.preventDefault();

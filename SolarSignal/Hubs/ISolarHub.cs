@@ -8,10 +8,7 @@ namespace SolarSignal.Hubs
     {
         Task GameState(List<Body> bodies, bool alreadyCalculatedPaths);
         Task Message(string user, string message);
-        Task Left();
-        Task Right();
-        Task Up();
-        Task Down();
+        Task Input(Input keyMap);
         Task Shoot();
         Task Pause();
         Task Resume();

@@ -91,7 +91,8 @@ namespace SolarSignal.SolarModels
             if (Players == null) return;
 
             if (Players.TrueForAll(
-                    p => !p.DownPressed && !p.UpPressed && !p.FuturesIncremented && !p.FuturesDecremented) &&
+                    p => !p.Input.DownPressed && !p.Input.UpPressed && !p.FuturesIncremented &&
+                         !p.FuturesDecremented) &&
                 _calculatedAtLeastOneFuture)
                 _alreadyCalculatedPaths = true;
             else
@@ -99,14 +100,14 @@ namespace SolarSignal.SolarModels
 
             foreach (var player in Players)
             {
-                player.Angle -= Convert.ToInt32(player.LeftPressed) * 5;
-                player.Angle += Convert.ToInt32(player.RightPressed) * 5;
+                player.Angle -= Convert.ToInt32(player.Input.LeftPressed) * 3;
+                player.Angle += Convert.ToInt32(player.Input.RightPressed) * 3;
 
                 if (player.Angle > 360) player.Angle -= 360;
                 if (player.Angle < 0) player.Angle += 360;
 
                 var scaleMagnitude =
-                    5 / 30f * (Convert.ToInt32(player.UpPressed) - Convert.ToInt32(player.DownPressed));
+                    1 / 30f * (Convert.ToInt32(player.Input.UpPressed) - Convert.ToInt32(player.Input.DownPressed));
                 var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
 
                 player.Velocity += deltaV;
@@ -115,10 +116,10 @@ namespace SolarSignal.SolarModels
 
         private void ClearInputs(Player player)
         {
-            player.LeftPressed = false;
-            player.RightPressed = false;
-            player.UpPressed = false;
-            player.DownPressed = false;
+            player.Input.LeftPressed = false;
+            player.Input.RightPressed = false;
+            player.Input.UpPressed = false;
+            player.Input.DownPressed = false;
             player.FuturesIncremented = false;
             player.FuturesDecremented = false;
         }
@@ -186,9 +187,9 @@ namespace SolarSignal.SolarModels
 
             AssignCircularOrbitVelocity(orbiter, parentBody);
 
-            Bodies.Add(orbiter);
-
             orbiter.ParentBody = parentBody;
+
+            Bodies.Add(orbiter);
 
             return orbiter;
         }
@@ -202,7 +203,7 @@ namespace SolarSignal.SolarModels
             var parentReferenceFrameOrbitingXVelocity =
                 Convert.ToSingle(Math.Sqrt(orbitRadius * accelerationOfGravity));
 
-            orbiter.Velocity = new Vector2(parentReferenceFrameOrbitingXVelocity, 0);
+            orbiter.Velocity += new Vector2(parentReferenceFrameOrbitingXVelocity, 0);
 
             if (parentBody.ParentBody == null) return;
 
@@ -218,7 +219,14 @@ namespace SolarSignal.SolarModels
                 Color = "purple",
                 Mass = 1,
                 Radius = 10,
-                Position = new Vector2(250, 250)
+                Position = new Vector2(250, 250),
+                Input = new Input
+                {
+                    UpPressed = false,
+                    DownPressed = false,
+                    LeftPressed = false,
+                    RightPressed = false
+                }
             });
         }
 

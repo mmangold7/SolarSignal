@@ -46,24 +46,9 @@ namespace SolarSignal.Hubs
             await Clients.All.Message(user, message);
         }
 
-        public async Task Left()
+        public async Task Input(Input input)
         {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).LeftPressed = true;
-        }
-
-        public async Task Right()
-        {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).RightPressed = true;
-        }
-
-        public async Task Up()
-        {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).UpPressed = true;
-        }
-
-        public async Task Down()
-        {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).DownPressed = true;
+            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).Input = input;
         }
 
         public async Task Shoot()
