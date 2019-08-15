@@ -87,7 +87,7 @@
             //console.log(bodies);
 
             if (firstUpdate && displayOffsetBody !== "undefined" && displayOffsetBody !== null) {
-                togglePaused();
+                //Put things here you only want to happen once
                 firstUpdate = false;
             }
 
@@ -112,10 +112,6 @@
             if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
                 Object.keys(cachedBodyFutures).forEach(function (bodyName) {
                     cachedBodyFutures[bodyName].shift();
-                });
-
-                cachedBodyFutures.forEach(function(future) {
-                    future.shift();
                 });
             };
         });
