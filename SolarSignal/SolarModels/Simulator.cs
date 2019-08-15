@@ -51,7 +51,7 @@ namespace SolarSignal.SolarModels
 
         public List<Body> Bodies;
 
-        public int FuturePositionsCount { get; set; } = 200;
+        public int AmountOfFuturePositionsToGenerate { get; set; } = 200;
 
         public bool ShouldCalculateFuturePaths { get; set; } = false;
 
@@ -75,7 +75,7 @@ namespace SolarSignal.SolarModels
                 HandlePlayerInput();
                 if (Bodies == null) break;
                 foreach (var body in GetBodiesToGravitate()) UpdateBodyPosition(body);
-                if (ShouldCalculateFuturePaths && FuturePositionsCount > 0 && !_alreadyCalculatedPaths)
+                if (AmountOfFuturePositionsToGenerate > 0 && !_alreadyCalculatedPaths)
                     CalculateFuturePositions();
                 else
                     foreach (var body in GetBodiesToGravitate())
@@ -159,15 +159,18 @@ namespace SolarSignal.SolarModels
                 body.FuturePositions = new List<Vector2>();
             }
 
-            for (var i = 0; i < FuturePositionsCount; i++)
+            for (var i = 0; i < AmountOfFuturePositionsToGenerate; i++)
                 foreach (var body in Bodies)
                 {
                     UpdateBodyPosition(body);
                     body.FuturePositions.Add(body.Position);
                 }
 
-            foreach (var body in Bodies) body.Position = originalPositions[body];
-            foreach (var body in Bodies) body.Velocity = originalVelocities[body];
+            foreach (var body in Bodies)
+            {
+                body.Position = originalPositions[body];
+                body.Velocity = originalVelocities[body];
+            }
 
             _calculatedAtLeastOneFuture = true;
         }
@@ -248,13 +251,13 @@ namespace SolarSignal.SolarModels
 
         public void IncreaseFuturesCalculations()
         {
-            FuturePositionsCount += FuturesCountIncrementSize;
+            AmountOfFuturePositionsToGenerate += FuturesCountIncrementSize;
         }
 
         public void DecreaseFuturesCalculations()
         {
-            FuturePositionsCount -= FuturesCountIncrementSize;
-            if (FuturePositionsCount < 0) FuturePositionsCount = 0;
+            AmountOfFuturePositionsToGenerate -= FuturesCountIncrementSize;
+            if (AmountOfFuturePositionsToGenerate < 0) AmountOfFuturePositionsToGenerate = 0;
         }
 
         #endregion

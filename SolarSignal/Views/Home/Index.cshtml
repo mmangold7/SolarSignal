@@ -2,6 +2,12 @@
     ViewData["Title"] = "SolarSignal";
 }
 
+<label for="shipColor">Ship Color:</label>
+<input type="text" class="color" id="shipColorPicker" />
+@*<label for="playerName">Player Name:</label>
+    <input type="text" />*@
+<input type="button" id="playButton" value="Play" />
+
 <canvas id="imgCanvas" width="1000" height="750" style="border: 1px solid #d3d3d3;">
     Your browser does not support the HTML5 canvas tag.
 </canvas>
@@ -29,12 +35,6 @@
         </div>
     </div>
 </div>
-
-<label for="shipColor">Ship Color:</label>
-<input type="text" class="color" id="shipColorPicker" />
-@*<label for="playerName">Player Name:</label>
-<input type="text" />*@
-<input type="button" id="playButton" value="Play" />
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
