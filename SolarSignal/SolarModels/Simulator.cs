@@ -41,13 +41,14 @@ namespace SolarSignal.SolarModels
         private readonly IHubContext<SolarHub, ISolarHub> _hubContext;
         private readonly int FuturesCountIncrementSize = 100;
         private readonly bool _shouldGravitatePlayers = true;
-        private bool _paused;
         private bool _alreadyCalculatedPaths;
         private bool _calculatedAtLeastOneFuture;
 
         #endregion
 
         #region ///  Properties  ///
+
+        public bool IsPaused { get; private set; } = true;
 
         public List<Body> Bodies;
 
@@ -70,7 +71,7 @@ namespace SolarSignal.SolarModels
 
         public async void Simulate()
         {
-            while (!_paused)
+            while (!IsPaused)
             {
                 HandlePlayerInput();
                 if (Bodies == null) break;
@@ -240,12 +241,12 @@ namespace SolarSignal.SolarModels
 
         public void Pause()
         {
-            _paused = true;
+            IsPaused = true;
         }
 
         public void Resume()
         {
-            _paused = false;
+            IsPaused = false;
             Simulate();
         }
 

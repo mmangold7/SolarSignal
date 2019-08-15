@@ -11,7 +11,6 @@
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
     var playerId;
     var debugEnabled = false;
-    var paused = false;
     var shouldDrawFuturePaths = false;
     var displayOffsetBody;
     var firstUpdate = true;
@@ -43,6 +42,16 @@
         });
     });
 
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "black";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fill();
+    context.fillStyle = "white";
+    context.font = "10px Arial";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillText("PAUSED AT START", -10, -5);
+    context.fillText("PRESS P TO UN-PAUSE", -10, 10);
+    context.fill();
 
     var keyMap = {};
     connection.on("GameState",
@@ -249,7 +258,9 @@
         }
         if (keyMap[80]) { //P
             e.preventDefault();
-            togglePaused();
+            connection.invoke("TogglePaused").catch(function (err) {
+                return console.error(err.toString());
+            });
         }
         if (keyMap[70]) { //F
             e.preventDefault();
@@ -275,19 +286,6 @@
         function (currentShouldCalculateFuturePaths) {
             shouldDrawFuturePaths = currentShouldCalculateFuturePaths;
         });
-
-    function togglePaused() {
-        if (paused) {
-            connection.invoke("Resume").catch(function(err) {
-                return console.error(err.toString());
-            });
-        } else {
-            connection.invoke("Pause").catch(function(err) {
-                return console.error(err.toString());
-            });
-        }
-        paused = !paused;
-    };
 
     connection.on("Message",
         function(user, message) {

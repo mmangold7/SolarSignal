@@ -32,7 +32,8 @@ namespace SolarSignal.Hubs
 
         public async Task CreatePlayerWithId(string connectionId, string rgbColor)
         {
-            if(UserHandler.ConnectedIds.Contains(connectionId) && Globals.Simulator.Players.All(p => p.Id != connectionId))
+            if (UserHandler.ConnectedIds.Contains(connectionId) &&
+                Globals.Simulator.Players.All(p => p.Id != connectionId))
                 Globals.Simulator.CreatePlayerWithId(connectionId, rgbColor);
         }
 
@@ -77,6 +78,14 @@ namespace SolarSignal.Hubs
             var shouldCalculateFuturePaths = !Globals.Simulator.ShouldCalculateFuturePaths;
             Globals.Simulator.ShouldCalculateFuturePaths = shouldCalculateFuturePaths;
             await Clients.All.ToggleCalculateFuturePaths(shouldCalculateFuturePaths);
+        }
+
+        public async Task TogglePaused()
+        {
+            if (Globals.Simulator.IsPaused)
+                Globals.Simulator.Resume();
+            else
+                Globals.Simulator.Pause();
         }
 
         public async Task IncreaseFuturesCalculations()
