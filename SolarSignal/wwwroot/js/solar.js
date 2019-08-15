@@ -257,8 +257,7 @@
         }
         if (keyMap[70]) { //F
             e.preventDefault();
-            shouldDrawFuturePaths = !shouldDrawFuturePaths;
-            connection.invoke("ToggleCalculateFuturePaths").catch(function(err) {
+            connection.invoke("ToggleCalculateFuturePaths", shouldDrawFuturePaths).catch(function(err) {
                 return console.error(err.toString());
             });
         }
@@ -275,6 +274,11 @@
             });
         }
     }
+
+    connection.on("ToggleCalculateFuturePaths",
+        function (currentShouldCalculateFuturePaths) {
+            shouldDrawFuturePaths = currentShouldCalculateFuturePaths;
+        });
 
     function togglePaused() {
         if (paused) {

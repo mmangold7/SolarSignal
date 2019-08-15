@@ -12,7 +12,7 @@ namespace SolarSignal.Hubs
         Task Shoot();
         Task Pause();
         Task Resume();
-        Task ToggleCalculateFuturePaths();
+        Task ToggleCalculateFuturePaths(bool currentShouldCalculateFuturePaths);
         Task IncreaseFuturesCalculations();
         Task DecreaseFuturesCalculations();
     }

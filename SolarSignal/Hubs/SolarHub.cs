@@ -72,9 +72,11 @@ namespace SolarSignal.Hubs
             Globals.Simulator.Resume();
         }
 
-        public async Task ToggleCalculateFuturePaths()
+        public async Task ToggleCalculateFuturePaths(bool currentShouldCalculateFuturePaths)
         {
-            Globals.Simulator.ShouldCalculateFuturePaths = !Globals.Simulator.ShouldCalculateFuturePaths;
+            var shouldCalculateFuturePaths = !Globals.Simulator.ShouldCalculateFuturePaths;
+            Globals.Simulator.ShouldCalculateFuturePaths = shouldCalculateFuturePaths;
+            await Clients.All.ToggleCalculateFuturePaths(shouldCalculateFuturePaths);
         }
 
         public async Task IncreaseFuturesCalculations()
