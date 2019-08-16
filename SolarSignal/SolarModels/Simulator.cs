@@ -73,10 +73,10 @@ namespace SolarSignal.SolarModels
         {
             while (!IsPaused)
             {
-                HandlePlayerInput();
                 if (Bodies == null) break;
+                HandlePlayerInput();
                 foreach (var body in GetBodiesToGravitate()) UpdateBodyPosition(body);
-                if (AmountOfFuturePositionsToGenerate > 0 && !_alreadyCalculatedPaths)
+                if (AmountOfFuturePositionsToGenerate > 0 && !_alreadyCalculatedPaths && ShouldCalculateFuturePaths)
                     CalculateFuturePositions();
                 else
                     foreach (var body in GetBodiesToGravitate())

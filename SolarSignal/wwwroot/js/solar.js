@@ -77,19 +77,19 @@
                 drawGrid();
             }
 
-            //draw bodies
-            bodies.forEach(body => drawBody(body));
-
             //draw future paths
             if (shouldDrawFuturePaths) {
                 if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
-                    Object.keys(cachedBodyFutures).forEach(function(bodyName) {
+                    Object.keys(cachedBodyFutures).forEach(function (bodyName) {
                         drawFuturePaths(cachedBodyFutures[bodyName], bodies.filter(b => b.name == bodyName)[0].color);
                     });
                 } else {
                     bodies.forEach(body => drawFuturePaths(body.futurePositions, body.color));
                 }
             }
+
+            //draw bodies
+            bodies.forEach(body => drawBody(body));
 
             //restore translation before next frame
             context.translate(trackerAndCanvasXOffset(), trackerAndCanvasYOffset());
