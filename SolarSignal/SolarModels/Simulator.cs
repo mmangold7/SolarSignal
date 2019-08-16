@@ -127,8 +127,42 @@ namespace SolarSignal.SolarModels
 
         private void UpdateBodyPosition(Body body)
         {
-            GravitateBody(body);
+            //HandleCollisions(body);
             MoveBody(body);
+            GravitateBody(body);
+        }
+
+        private void HandleCollisions(Body body)
+        {
+            foreach (var otherBody in Bodies.Where(b => b != body))
+            {
+                var displacement = otherBody.Position - body.Position;
+                var sumOfRadii = body.Radius + otherBody.Radius;
+
+                if (displacement.Length() < sumOfRadii)
+                {
+                     var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
+                        0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
+                     otherBody.Position += positionOffsetHalf;
+                     body.Position -= positionOffsetHalf;
+                    var bodyFinalVelocity =
+                        Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
+                            body.Velocity) +
+                        Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
+                            otherBody.Velocity);
+                    var otherBodyVelocityFinal =
+                        Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
+                            body.Velocity) + Vector2.Multiply(
+                            Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
+                            otherBody.Velocity);
+                    body.Velocity = bodyFinalVelocity;
+                    otherBody.Velocity = otherBodyVelocityFinal;
+                }
+                else
+                {
+
+                }
+            }
         }
 
         private void MoveBody(Body body)

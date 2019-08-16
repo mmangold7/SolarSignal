@@ -119,7 +119,7 @@
                 });
             }
             if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
-                Object.keys(cachedBodyFutures).forEach(function (bodyName) {
+                Object.keys(cachedBodyFutures).forEach(function(bodyName) {
                     cachedBodyFutures[bodyName].shift();
                 });
             };
@@ -158,7 +158,7 @@
             context.moveTo(body.position.x + body.radius, body.position.y);
             context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
             context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
-            
+
             context.fillStyle = body.color;
             context.fill();
 
@@ -258,7 +258,7 @@
         }
         if (keyMap[80]) { //P
             e.preventDefault();
-            connection.invoke("TogglePaused").catch(function (err) {
+            connection.invoke("TogglePaused").catch(function(err) {
                 return console.error(err.toString());
             });
         }
@@ -283,7 +283,7 @@
     }
 
     connection.on("ToggleCalculateFuturePaths",
-        function (currentShouldCalculateFuturePaths) {
+        function(currentShouldCalculateFuturePaths) {
             shouldDrawFuturePaths = currentShouldCalculateFuturePaths;
         });
 
@@ -305,15 +305,17 @@
             });
             event.preventDefault();
         });
+});
 
-//todo: write a left click handler that changes the display offset body to the clicked body
-//todo:add floating indicators for player names and integrate chat with the game
-//todo:allow customizing ship colors and maybe appearance
+//todo:s
+//The most important thing: elastic collisions, probably with damping. give players "shields". let things falls safely together and bounce around. should be awesome
+
+//add floating indicators for player names and integrate chat with the game
+//allow customizing ship appearance
+
 //if i've already calculated the next however many paths, why bother continuing to do so when i could just cache the future positions, perhaps by using an array indexed with the iteration of the main loop.
 //not only could i stop calculated futures, I could stop calculating the actual paths! just used the already calculated values
 //need to add unit tests so things don't break like the pause function or the grid etc
-//cache paths on the client rather than server
-//bug: it starts behaving the way i want with future paths after i hit increment or decrement via plus or minus. need that on all the time
 //think about how slower things get shorter paths. maybe path length should be constants not positions
 //idea:velocity dependent line colors. make the points colored based on the velocity magnitude of the body at the simulated point. wow that would be easy! lol
-});
+//write a left click handler that changes the display offset body to the clicked body
