@@ -6,5 +6,6 @@
         public bool LeftPressed { get; set; }
         public bool RightPressed { get; set; }
         public bool UpPressed { get; set; }
+        public bool ShootPressed { get; set; }
     }
 }

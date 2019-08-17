@@ -15,6 +15,7 @@ namespace SolarSignal.SolarModels
         public bool FuturesIncremented { get; set; }
         public bool FuturesDecremented { get; set; }
         public Input Input { get; set; }
+        public DateTime LastShotTime { get; set; }
 
         #endregion
     }

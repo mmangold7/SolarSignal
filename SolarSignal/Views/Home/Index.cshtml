@@ -49,6 +49,7 @@
 
         //style color picker
         $('.color').colorPicker();
+        $('.color').click();
 
         //canvas stuff
         var canvas = document.getElementById("imgCanvas");
@@ -160,7 +161,7 @@
                 }
 
                 bodies.forEach(function(body) {
-                    if (body.futurePositions !== undefined && body.futurePositions !== null) {
+                    if (body.futurePositions !== undefined && body.futurePositions !== null && body.futurePositions.length > 0) {
                         cachedBodyFutures[body.name] = body.futurePositions;
                     }
                 });
@@ -170,7 +171,8 @@
                         "LeftPressed": keyMap[37],
                         "UpPressed": keyMap[38],
                         "RightPressed": keyMap[39],
-                        "DownPressed": keyMap[40]
+                        "DownPressed": keyMap[40],
+                        "ShootPressed": keyMap[32]
                     };
 
                     connection.invoke("Input", inputKeyMap).catch(function(err) {
@@ -332,11 +334,6 @@
             }
             if (keyMap[68]) { //D
                 debugEnabled = !debugEnabled;
-            }
-            if (keyMap[32]) { //Space
-                connection.invoke("Shoot").catch(function(err) {
-                    return console.error(err.toString());
-                });
             }
             if (keyMap[80]) { //P
                 connection.invoke("TogglePaused").catch(function(err) {

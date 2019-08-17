@@ -10,7 +10,7 @@ namespace SolarSignal.SolarModels
 
         public string Name { get; set; }
         public double Mass { get; set; }
-        public double Radius { get; set; }
+        public float Radius { get; set; }
 
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
@@ -19,6 +19,7 @@ namespace SolarSignal.SolarModels
         //public double AngularVelocity { get; set; }
         public string Color { get; set; }
 
+        //todo:replace this property with local var in orbit method
         [JsonIgnore] public Body ParentBody { get; set; }
 
         public List<Vector2> FuturePositions { get; set; } = new List<Vector2>();

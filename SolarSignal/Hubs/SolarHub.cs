@@ -64,11 +64,6 @@ namespace SolarSignal.Hubs
             _simulator.Players.Single(p => p.Id == Context.ConnectionId).Input = input;
         }
 
-        public async Task Shoot()
-        {
-            //todo:create a bullet or missile or whatever derived body and have them shoot out from the current player
-        }
-
         public async Task Pause()
         {
             _simulator.Pause();

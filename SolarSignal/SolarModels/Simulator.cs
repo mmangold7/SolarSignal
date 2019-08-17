@@ -58,6 +58,8 @@ namespace SolarSignal.SolarModels
 
         public List<Player> Players => Bodies.OfType<Player>().ToList();
 
+        public List<Missile> Missiles => Bodies.OfType<Missile>().ToList();
+
         #endregion
 
         #region ///  Methods  ///
@@ -81,16 +83,23 @@ namespace SolarSignal.SolarModels
                 else
                     foreach (var body in GetBodiesToGravitate())
                         body.FuturePositions = null;
+                RemoveOldMissiles();
                 await _hubContext.Clients.All.GameState(Bodies, _alreadyCalculatedPaths);
                 foreach (var player in Players) ClearInputs(player);
                 await Task.Delay(1000 / Fps);
             }
         }
 
+        private void RemoveOldMissiles()
+        {
+            Bodies.RemoveAll(b => b is Missile m && DateTime.Now - m.CreatedAt > TimeSpan.FromSeconds(3));
+        }
+
         private void HandlePlayerInput()
         {
             if (Players == null) return;
 
+            //If there is no player input, there is no need to re-calculate futures since they are still determined correct
             if (Players.TrueForAll(
                     p => !p.Input.DownPressed && !p.Input.UpPressed && !p.FuturesIncremented &&
                          !p.FuturesDecremented) &&
@@ -101,12 +110,14 @@ namespace SolarSignal.SolarModels
 
             foreach (var player in Players)
             {
+                //ship rotation
                 player.Angle -= Convert.ToInt32(player.Input.LeftPressed) * 5;
                 player.Angle += Convert.ToInt32(player.Input.RightPressed) * 5;
 
                 if (player.Angle > 360) player.Angle -= 360;
                 if (player.Angle < 0) player.Angle += 360;
 
+                //ship acceleration
                 var scaleMagnitude =
                     3 / 30f * (Convert.ToInt32(player.Input.UpPressed) - Convert.ToInt32(player.Input.DownPressed));
                 var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
@@ -127,6 +138,24 @@ namespace SolarSignal.SolarModels
                 //}
 
                 player.Velocity += deltaV;
+
+                //ship weapons
+                if (player.Input.ShootPressed && DateTime.Now - player.LastShotTime > TimeSpan.FromMilliseconds(100))
+                {
+                    var shotTime = DateTime.Now;
+                    Bodies.Add(new Missile
+                    {
+                        ParentBody = player,
+                        Damage = 10,
+                        Mass = 10,
+                        Radius = 2,
+                        Color = "orange",
+                        Position = player.Position + (player.Radius + 1.5f) * player.AngleVector,
+                        Velocity = player.AngleVector * 3 + player.Velocity,
+                        CreatedAt = shotTime
+                    });
+                    player.LastShotTime = shotTime;
+                }
             }
         }
 
@@ -138,6 +167,7 @@ namespace SolarSignal.SolarModels
             player.Input.RightPressed = false;
             player.Input.UpPressed = false;
             player.Input.DownPressed = false;
+            player.Input.ShootPressed = false;
             player.FuturesIncremented = false;
             player.FuturesDecremented = false;
         }
@@ -149,38 +179,34 @@ namespace SolarSignal.SolarModels
             GravitateBody(body);
         }
 
-        //private void HandleCollisions(Body body)
-        //{
-        //    foreach (var otherBody in Bodies.Where(b => b != body))
-        //    {
-        //        var displacement = otherBody.Position - body.Position;
-        //        var sumOfRadii = body.Radius + otherBody.Radius;
+        private void HandleCollisions(Body body)
+        {
+            foreach (var otherBody in Bodies.Where(b => b != body))
+            {
+                var displacement = otherBody.Position - body.Position;
+                var sumOfRadii = body.Radius + otherBody.Radius;
 
-        //        if (displacement.Length() < sumOfRadii)
-        //        {
-        //            var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
-        //                0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
-        //            otherBody.Position += positionOffsetHalf;
-        //            body.Position -= positionOffsetHalf;
-        //            var bodyFinalVelocity =
-        //                Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
-        //                    body.Velocity) +
-        //                Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
-        //                    otherBody.Velocity);
-        //            var otherBodyVelocityFinal =
-        //                Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
-        //                    body.Velocity) + Vector2.Multiply(
-        //                    Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
-        //                    otherBody.Velocity);
-        //            body.Velocity = bodyFinalVelocity;
-        //            otherBody.Velocity = otherBodyVelocityFinal;
-        //        }
-        //        else
-        //        {
-
-        //        }
-        //    }
-        //}
+                if (displacement.Length() < sumOfRadii)
+                {
+                    var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
+                        0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
+                    otherBody.Position += positionOffsetHalf;
+                    body.Position -= positionOffsetHalf;
+                    var bodyFinalVelocity =
+                        Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
+                            body.Velocity) +
+                        Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
+                            otherBody.Velocity);
+                    var otherBodyVelocityFinal =
+                        Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
+                            body.Velocity) + Vector2.Multiply(
+                            Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
+                            otherBody.Velocity);
+                    body.Velocity = bodyFinalVelocity * 0.9f;
+                    otherBody.Velocity = otherBodyVelocityFinal * 0.9f;
+                }
+            }
+        }
 
         private void MoveBody(Body body)
         {
@@ -204,7 +230,9 @@ namespace SolarSignal.SolarModels
             var originalPositions = new Dictionary<Body, Vector2>();
             var originalVelocities = new Dictionary<Body, Vector2>();
 
-            foreach (var body in Bodies)
+            var bodiesToMakeFuturesFor = Bodies.Except(Missiles).ToList();
+
+            foreach (var body in bodiesToMakeFuturesFor)
             {
                 originalPositions.Add(body, body.Position);
                 originalVelocities.Add(body, body.Velocity);
@@ -212,13 +240,13 @@ namespace SolarSignal.SolarModels
             }
 
             for (var i = 0; i < AmountOfFuturePositionsToGenerate; i++)
-                foreach (var body in Bodies)
+                foreach (var body in bodiesToMakeFuturesFor)
                 {
                     UpdateBodyPosition(body);
                     body.FuturePositions.Add(body.Position);
                 }
 
-            foreach (var body in Bodies)
+            foreach (var body in bodiesToMakeFuturesFor)
             {
                 body.Position = originalPositions[body];
                 body.Velocity = originalVelocities[body];
@@ -227,7 +255,7 @@ namespace SolarSignal.SolarModels
             _calculatedAtLeastOneFuture = true;
         }
 
-        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, double mass, double radius,
+        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, double mass, float radius,
             string color, string name)
         {
             var orbiter = new Body
@@ -275,7 +303,8 @@ namespace SolarSignal.SolarModels
         {
             var startPosition = GetRandomVector();
 
-            while (Bodies.Any(b => (b.Position - startPosition).Length() < 20 + b.Radius)) startPosition = GetRandomVector();
+            while (Bodies.Any(b => (b.Position - startPosition).Length() < 20 + b.Radius))
+                startPosition = GetRandomVector();
 
             return startPosition;
         }
@@ -295,7 +324,8 @@ namespace SolarSignal.SolarModels
                     UpPressed = false,
                     DownPressed = false,
                     LeftPressed = false,
-                    RightPressed = false
+                    RightPressed = false,
+                    ShootPressed = false
                 }
             });
         }
