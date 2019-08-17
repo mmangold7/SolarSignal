@@ -49,7 +49,7 @@ namespace SolarSignal.Controllers
             simulator.Bodies.Add(sun);
 
             //make the earth
-            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 3300, 3, "blue", "earth");
+            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 10000, 3, "blue", "earth");
 
             //make the moon
             var moon = simulator.CreateCircularOrbiterOf(earth, 15, .1, 2, "white", "moon");

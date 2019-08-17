@@ -48,7 +48,7 @@ namespace SolarSignal.SolarModels
 
         #region ///  Properties  ///
 
-        public bool IsPaused { get; private set; } = true;
+        public bool IsPaused { get; private set; } = false;
 
         public List<Body> Bodies;
 
@@ -127,10 +127,25 @@ namespace SolarSignal.SolarModels
                 //}
 
                 player.Velocity += deltaV;
+
+                //if player is going too fast and trying to go faster, project their deltav onto the vectors perpendicular to player.Velocity
+                if (player.Velocity.Length() > MaxSpeed)
+                {
+                    player.Velocity = Vector2.Multiply(MaxSpeed, Vector2.Normalize(player.AngleVector));
+                    //var perpendicularVector = Math.Atan2(player.Velocity.Y - player.AngleVector.Y,
+                    //                              player.Velocity.X - player.AngleVector.X) >
+                    //                          0
+                    //    ? new Vector2(-player.Velocity.X, player.Velocity.Y)
+                    //    : new Vector2(player.Velocity.X, -player.Velocity.Y);
+
+                    //var unitPerpendicularVector = Vector2.Normalize(perpendicularVector);
+
+                    //deltaV = Vector2.Multiply(Vector2.Dot(deltaV, unitPerpendicularVector), unitPerpendicularVector);
+                }
             }
         }
 
-        //private const float MaxSpeed = 1.5f;
+        private const float MaxSpeed = 5f;
 
         private void ClearInputs(Player player)
         {
@@ -272,7 +287,7 @@ namespace SolarSignal.SolarModels
                 Id = id,
                 Name = id,
                 Color = rgbColor,
-                Mass = 1,
+                Mass = 1000,
                 Radius = 10,
                 Position = new Vector2(250, 250),
                 Input = new Input

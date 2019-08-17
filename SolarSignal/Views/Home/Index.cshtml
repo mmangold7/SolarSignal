@@ -21,6 +21,10 @@
         }
 
         #container canvas, #overlay { position: absolute; }
+
+        label {
+            color: white
+        }
     </style>
 </head>
 <body>
@@ -30,8 +34,15 @@
     </canvas>
     <div id="overlay">
         <label for="shipColorPicker">Ship Color:</label>
-        <input type="text" class="color" id="shipColorPicker"/>
-        <input type="button" id="playButton" value="Play"/>
+        <input class="color" id="shipColorPicker"/>
+        <input type="button" id="playButton" value="Play" />
+        @*<form class="form-signin">
+            <h1 class="h3 mb-3 font-weight-normal">Choose Ship</h1>
+            <label for="shipColorPicker" class="sr-only">Ship Color</label>
+            <input type="text" id="shipColorPicker" class="form-control color" placeholder="Click to choose" required>
+            <button id="playButton" class="btn btn-lg btn-primary btn-block" type="submit">Play</button>
+            <p class="mt-5 mb-3 text-muted">&copy; Matt Mangold 2019</p>
+        </form>*@
     </div>
 </div>
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -48,11 +59,11 @@
 
         //canvas stuff
         var canvas = document.getElementById("imgCanvas");
-        var canvasWidth = canvas.width;
-        var canvasHeight = canvas.height;
+        var canvasWidth = canvas.width = window.innerWidth;
+        var canvasHeight = canvas.height = window.innerHeight;
         var context = canvas.getContext("2d");
 
-        var gridSpacing = 100;
+        var gridSpacing = 200;
         var gridRadius = 10000;
 
         //other "global" vars
@@ -98,14 +109,6 @@
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = "black";
         context.fillRect(0, 0, canvas.width, canvas.height);
-        context.fill();
-
-        context.fillStyle = "black";
-        context.font = "36px Arial";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = "white";
-        context.fillText("PAUSED AT START", canvasWidth / 2 - 250, canvasHeight / 2 - 250);
-        context.fillText("PRESS P TO UN-PAUSE", canvasWidth / 2 - 100, canvasHeight / 2 + 40);
         context.fill();
 
         var keyMap = {};
@@ -382,6 +385,10 @@
 //think about how slower things get shorter paths. maybe path length should be constants not positions
 //idea:velocity dependent line colors. make the points colored based on the velocity magnitude of the body at the simulated point. wow that would be easy! lol
 //write a left click handler that changes the display offset body to the clicked body
+    //cloaking - makes you invisible
+    //speed boost
+    //shield boost
+    //weapon boost
 </script>
 </body>
 </html>

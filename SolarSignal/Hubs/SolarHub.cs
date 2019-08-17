@@ -37,10 +37,10 @@ namespace SolarSignal.Hubs
             if (UserHandler.ConnectedIds.Contains(connectionId) &&
                 _simulator.Players.All(p => p.Id != connectionId))
                 _simulator.CreatePlayerWithId(connectionId, rgbColor);
-            if (_simulator.Players.Count == 1 && _simulator.IsPaused)
-            {
-                _simulator.Resume();
-            }
+            //if (_simulator.Players.Count == 1 && _simulator.IsPaused)
+            //{
+            //    _simulator.Resume();
+            //}
         }
 
         public string GetConnectionId()
