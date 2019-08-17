@@ -101,19 +101,36 @@ namespace SolarSignal.SolarModels
 
             foreach (var player in Players)
             {
-                player.Angle -= Convert.ToInt32(player.Input.LeftPressed) * 3;
-                player.Angle += Convert.ToInt32(player.Input.RightPressed) * 3;
+                player.Angle -= Convert.ToInt32(player.Input.LeftPressed) * 5;
+                player.Angle += Convert.ToInt32(player.Input.RightPressed) * 5;
 
                 if (player.Angle > 360) player.Angle -= 360;
                 if (player.Angle < 0) player.Angle += 360;
 
                 var scaleMagnitude =
-                    1 / 30f * (Convert.ToInt32(player.Input.UpPressed) - Convert.ToInt32(player.Input.DownPressed));
+                    3 / 30f * (Convert.ToInt32(player.Input.UpPressed) - Convert.ToInt32(player.Input.DownPressed));
                 var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
+
+                //todo:limit player deltav based on their speed
+                //if player is going too fast and trying to go faster, project their deltav onto the vectors perpendicular to player.Velocity
+                //if (player.Velocity.Length() > MaxSpeed && Vector2.Dot(deltaV, Vector2.Normalize(player.Velocity)) > 0)
+                //{
+                //    //var perpendicularVector = Math.Atan2(player.Velocity.Y - player.AngleVector.Y,
+                //    //                              player.Velocity.X - player.AngleVector.X) >
+                //    //                          0
+                //    //    ? new Vector2(-player.Velocity.X, player.Velocity.Y)
+                //    //    : new Vector2(player.Velocity.X, -player.Velocity.Y);
+
+                //    //var unitPerpendicularVector = Vector2.Normalize(perpendicularVector);
+
+                //    //deltaV = Vector2.Multiply(Vector2.Dot(deltaV, unitPerpendicularVector), unitPerpendicularVector);
+                //}
 
                 player.Velocity += deltaV;
             }
         }
+
+        //private const float MaxSpeed = 1.5f;
 
         private void ClearInputs(Player player)
         {
@@ -132,38 +149,38 @@ namespace SolarSignal.SolarModels
             GravitateBody(body);
         }
 
-        private void HandleCollisions(Body body)
-        {
-            foreach (var otherBody in Bodies.Where(b => b != body))
-            {
-                var displacement = otherBody.Position - body.Position;
-                var sumOfRadii = body.Radius + otherBody.Radius;
+        //private void HandleCollisions(Body body)
+        //{
+        //    foreach (var otherBody in Bodies.Where(b => b != body))
+        //    {
+        //        var displacement = otherBody.Position - body.Position;
+        //        var sumOfRadii = body.Radius + otherBody.Radius;
 
-                if (displacement.Length() < sumOfRadii)
-                {
-                     var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
-                        0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
-                     otherBody.Position += positionOffsetHalf;
-                     body.Position -= positionOffsetHalf;
-                    var bodyFinalVelocity =
-                        Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
-                            body.Velocity) +
-                        Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
-                            otherBody.Velocity);
-                    var otherBodyVelocityFinal =
-                        Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
-                            body.Velocity) + Vector2.Multiply(
-                            Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
-                            otherBody.Velocity);
-                    body.Velocity = bodyFinalVelocity;
-                    otherBody.Velocity = otherBodyVelocityFinal;
-                }
-                else
-                {
+        //        if (displacement.Length() < sumOfRadii)
+        //        {
+        //            var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
+        //                0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
+        //            otherBody.Position += positionOffsetHalf;
+        //            body.Position -= positionOffsetHalf;
+        //            var bodyFinalVelocity =
+        //                Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
+        //                    body.Velocity) +
+        //                Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
+        //                    otherBody.Velocity);
+        //            var otherBodyVelocityFinal =
+        //                Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
+        //                    body.Velocity) + Vector2.Multiply(
+        //                    Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
+        //                    otherBody.Velocity);
+        //            body.Velocity = bodyFinalVelocity;
+        //            otherBody.Velocity = otherBodyVelocityFinal;
+        //        }
+        //        else
+        //        {
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         private void MoveBody(Body body)
         {

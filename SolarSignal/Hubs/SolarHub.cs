@@ -14,13 +14,15 @@ namespace SolarSignal.Hubs
 
     public class SolarHub : Hub<ISolarHub>
     {
+        private Simulator _simulator = Globals.Simulator;
+
         #region ///  Methods  ///
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             UserHandler.ConnectedIds.Remove(Context.ConnectionId);
-            Globals.Simulator.DestroyPlayerWithId(Context.ConnectionId);
-            if (UserHandler.ConnectedIds.Count == 0 && Globals.Simulator != null) Globals.Simulator = null;
+            _simulator.DestroyPlayerWithId(Context.ConnectionId);
+            if (UserHandler.ConnectedIds.Count == 0 && _simulator != null) _simulator = null;
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -33,8 +35,12 @@ namespace SolarSignal.Hubs
         public async Task CreatePlayerWithId(string connectionId, string rgbColor)
         {
             if (UserHandler.ConnectedIds.Contains(connectionId) &&
-                Globals.Simulator.Players.All(p => p.Id != connectionId))
-                Globals.Simulator.CreatePlayerWithId(connectionId, rgbColor);
+                _simulator.Players.All(p => p.Id != connectionId))
+                _simulator.CreatePlayerWithId(connectionId, rgbColor);
+            if (_simulator.Players.Count == 1 && _simulator.IsPaused)
+            {
+                _simulator.Resume();
+            }
         }
 
         public string GetConnectionId()
@@ -54,7 +60,7 @@ namespace SolarSignal.Hubs
 
         public async Task Input(Input input)
         {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).Input = input;
+            _simulator.Players.Single(p => p.Id == Context.ConnectionId).Input = input;
         }
 
         public async Task Shoot()
@@ -65,39 +71,39 @@ namespace SolarSignal.Hubs
 
         public async Task Pause()
         {
-            Globals.Simulator.Pause();
+            _simulator.Pause();
         }
 
         public async Task Resume()
         {
-            Globals.Simulator.Resume();
+            _simulator.Resume();
         }
 
         public async Task ToggleCalculateFuturePaths(bool currentShouldCalculateFuturePaths)
         {
-            var shouldCalculateFuturePaths = !Globals.Simulator.ShouldCalculateFuturePaths;
-            Globals.Simulator.ShouldCalculateFuturePaths = shouldCalculateFuturePaths;
+            var shouldCalculateFuturePaths = !_simulator.ShouldCalculateFuturePaths;
+            _simulator.ShouldCalculateFuturePaths = shouldCalculateFuturePaths;
             await Clients.All.ToggleCalculateFuturePaths(shouldCalculateFuturePaths);
         }
 
         public async Task TogglePaused()
         {
-            if (Globals.Simulator.IsPaused)
-                Globals.Simulator.Resume();
+            if (_simulator.IsPaused)
+                _simulator.Resume();
             else
-                Globals.Simulator.Pause();
+                _simulator.Pause();
         }
 
         public async Task IncreaseFuturesCalculations()
         {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesIncremented = true;
-            Globals.Simulator.IncreaseFuturesCalculations();
+            _simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesIncremented = true;
+            _simulator.IncreaseFuturesCalculations();
         }
 
         public async Task DecreaseFuturesCalculations()
         {
-            Globals.Simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesDecremented = true;
-            Globals.Simulator.DecreaseFuturesCalculations();
+            _simulator.Players.Single(p => p.Id == Context.ConnectionId).FuturesDecremented = true;
+            _simulator.DecreaseFuturesCalculations();
         }
 
         #endregion

@@ -7,6 +7,21 @@
     var canvasHeight = canvas.height;
     var context = canvas.getContext("2d");
 
+    var gridSpacing = 100;
+    var gridRadius = 10000;
+
+    var starsList = [];
+
+    Math.seedrandom('any string you like');
+    for (var i = 0; i < 10000; i++) {
+        starsList.push([Math.random() * gridRadius, Math.random() * gridRadius]);
+        starsList.push([-Math.random() * gridRadius, Math.random() * gridRadius]);
+        starsList.push([Math.random() * gridRadius, -Math.random() * gridRadius]);
+        starsList.push([-Math.random() * gridRadius, -Math.random() * gridRadius]);
+    }
+
+    console.log(starsList);
+
     //other "global" vars
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
     var playerId;
@@ -46,11 +61,13 @@
     context.fillStyle = "black";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fill();
-    context.fillStyle = "white";
-    context.font = "10px Arial";
+
+    context.fillStyle = "black";
+    context.font = "36px Arial";
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillText("PAUSED AT START", -10, -5);
-    context.fillText("PRESS P TO UN-PAUSE", -10, 10);
+    context.fillStyle = "white";
+    context.fillText("PAUSED AT START", canvasWidth / 2 - 250, canvasHeight/2 - 250);
+    context.fillText("PRESS P TO UN-PAUSE", canvasWidth / 2 - 100, canvasHeight / 2 + 40);
     context.fill();
 
     var keyMap = {};
@@ -76,6 +93,8 @@
             if (debugEnabled) {
                 drawGrid();
             }
+
+            drawStars();
 
             //draw future paths
             if (shouldDrawFuturePaths) {
@@ -126,8 +145,6 @@
         });
 
     function drawGrid() {
-        var gridSpacing = 100;
-        var gridRadius = 1000;
 
         for (var i = -gridRadius / gridSpacing; i <= gridRadius / gridSpacing; i++) {
             context.moveTo(i * gridSpacing, -gridRadius);
@@ -138,6 +155,14 @@
 
         context.strokeStyle = "white";
         context.stroke();
+    }
+
+    function drawStars() {
+        context.fillStyle = "white";
+        starsList.forEach(function(star) {
+            context.fillRect(star[0], star[1], 2, 2);
+        });
+        context.fill();
     }
 
     function drawBody(body) {

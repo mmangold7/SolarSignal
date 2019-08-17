@@ -29,7 +29,6 @@ namespace SolarSignal.Controllers
 
             //start it up
             Globals.Simulator = GetSolSimulator();
-
             Task.Run(() => Globals.Simulator.Simulate());
         }
 
