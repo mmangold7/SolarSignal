@@ -33,7 +33,7 @@
     var isBuildingShip = true;
 
     //Disable send button until connection is established
-    document.getElementById("sendButton").disabled = true;
+    //document.getElementById("sendButton").disabled = true;
     //going to try to make 1 pixel = 1 million kilometers approx in distance between bodies
 
     connection.start().then(function() {
@@ -41,7 +41,7 @@
             .then(function(connectionId) {
                 playerId = connectionId;
             });
-        document.getElementById("sendButton").disabled = false;
+        //document.getElementById("sendButton").disabled = false;
     }).catch(function(err) {
         return console.error(err.toString());
     });
@@ -72,7 +72,10 @@
 
     var keyMap = {};
     connection.on("GameState",
-        function(bodies, alreadyCalculatedPaths) {
+        function (bodies, alreadyCalculatedPaths) {
+            //context.canvas.width = window.innerWidth;
+            //context.canvas.height = window.innerHeight;
+
             //center view on player
             displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
 
@@ -190,15 +193,15 @@
             }
             if (body.input.leftPressed) {
                 context.moveTo(body.position.x + body.radius, body.position.y);
-                context.lineTo(body.position.x + body.radius, body.position.y + body.radius * 1.5);
+                context.lineTo(body.position.x + body.radius, body.position.y + body.radius * 1.75);
                 context.moveTo(body.position.x - body.radius, body.position.y - body.radius);
-                context.lineTo(body.position.x - body.radius, body.position.y - body.radius - body.radius * 0.5);
+                context.lineTo(body.position.x - body.radius, body.position.y - body.radius - body.radius * 0.75);
             }
             if (body.input.rightPressed) {
                 context.moveTo(body.position.x + body.radius, body.position.y);
-                context.lineTo(body.position.x + body.radius, body.position.y - body.radius * 1.5);
+                context.lineTo(body.position.x + body.radius, body.position.y - body.radius * 1.75);
                 context.moveTo(body.position.x - body.radius, body.position.y + body.radius);
-                context.lineTo(body.position.x - body.radius, body.position.y + body.radius + body.radius * 0.5);
+                context.lineTo(body.position.x - body.radius, body.position.y + body.radius + body.radius * 0.75);
             }
             context.strokeStyle = "yellow";
             context.stroke();
@@ -215,10 +218,9 @@
 
             //draw ship body
             context.beginPath();
-            context.moveTo(body.position.x + body.radius, body.position.y);
-            context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
-            context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
-
+            context.moveTo(body.position.x + body.radius * 1.2, body.position.y);
+            context.lineTo(body.position.x - body.radius * 0.8, body.position.y - body.radius);
+            context.lineTo(body.position.x - body.radius * 0.8, body.position.y + body.radius);
             context.fillStyle = body.color;
             context.fill();
 
@@ -323,24 +325,24 @@
             shouldDrawFuturePaths = currentShouldCalculateFuturePaths;
         });
 
-    connection.on("Message",
-        function(user, message) {
-            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var encodedMsg = user + " says " + msg;
-            var li = document.createElement("li");
-            li.textContent = encodedMsg;
-            document.getElementById("messagesList").appendChild(li);
-        });
+    //connection.on("Message",
+    //    function(user, message) {
+    //        var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    //        var encodedMsg = user + " says " + msg;
+    //        var li = document.createElement("li");
+    //        li.textContent = encodedMsg;
+    //        document.getElementById("messagesList").appendChild(li);
+    //    });
 
-    document.getElementById("sendButton").addEventListener("click",
-        function(event) {
-            var user = document.getElementById("userInput").value;
-            var message = document.getElementById("messageInput").value;
-            connection.invoke("Message", user, message).catch(function(err) {
-                return console.error(err.toString());
-            });
-            event.preventDefault();
-        });
+    //document.getElementById("sendButton").addEventListener("click",
+    //    function(event) {
+    //        var user = document.getElementById("userInput").value;
+    //        var message = document.getElementById("messageInput").value;
+    //        connection.invoke("Message", user, message).catch(function(err) {
+    //            return console.error(err.toString());
+    //        });
+    //        event.preventDefault();
+    //    });
 });
 
 //todo:s
