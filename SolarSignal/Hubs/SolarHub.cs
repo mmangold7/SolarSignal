@@ -37,6 +37,7 @@ namespace SolarSignal.Hubs
             if (UserHandler.ConnectedIds.Contains(connectionId) &&
                 _simulator.Players.All(p => p.Id != connectionId))
                 _simulator.CreatePlayerWithId(connectionId, rgbColor);
+            //optional unpause when first player joins, if paused by default
             //if (_simulator.Players.Count == 1 && _simulator.IsPaused)
             //{
             //    _simulator.Resume();
