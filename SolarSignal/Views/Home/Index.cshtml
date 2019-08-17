@@ -1,51 +1,41 @@
 ﻿@{
-    ViewData["Title"] = "SolarSignal";
-}
-@{
     Layout = null;
 }
-<style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        width: 100%;
-    }
-</style>
+<html>
+<head>
+    <title>
+        SolarSignal
+    </title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+        }
 
-<label for="shipColor">Ship Color:</label>
-<input type="text" class="color" id="shipColorPicker"/>
-@*<label for="playerName">Player Name:</label>
-    <input type="text" />*@
-<input type="button" id="playButton" value="Play"/>
+        #container {
+            height: 100%;
+            position: relative;
+            width: 100%;
+        }
 
-<canvas id="imgCanvas" width="1000" height="750" style="border: 1px solid #d3d3d3;">
-    Your browser does not support the HTML5 canvas tag.
-</canvas>
+        #container canvas, #overlay { position: absolute; }
 
-@*<div class="container">
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-6">&nbsp;</div>
-        <div class="col-6">
-            User..........<input type="text" id="userInput"/>
-            <br/>
-            Message...<input type="text" id="messageInput"/>
-            <input type="button" id="sendButton" value="Send Message"/>
-        </div>
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+<div id="container">
+    <canvas id="imgCanvas" width="1000" height="750" style="border: 1px solid #d3d3d3;">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+    <div id="overlay">
+        <label for="shipColor">Ship Color:</label>
+        <input type="text" class="color" id="shipColorPicker"/>
+        <input type="button" id="playButton" value="Play"/>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <hr/>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-6">&nbsp;</div>
-        <div class="col-6">
-            <ul id="messagesList"></ul>
-        </div>
-    </div>
-</div>*@
-
+</div>
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
 <script src="~/lib/tinyColorPicker/colors.js"></script>
@@ -55,3 +45,5 @@
     $('.color').colorPicker();
 </script>
 <script src="~/js/solar.js"></script>
+</body>
+</html>

@@ -20,8 +20,6 @@
         starsList.push([-Math.random() * gridRadius, -Math.random() * gridRadius]);
     }
 
-    console.log(starsList);
-
     //other "global" vars
     var connection = new signalR.HubConnectionBuilder().withUrl("/solarHub").build();
     var playerId;
@@ -48,8 +46,6 @@
 
     $("#playButton").click(function() {
         var colorPickerColor = $("#shipColorPicker").css("background-color");
-        console.log(playerId);
-        console.log($("#shipColorPicker").css("color"));
         connection.invoke("CreatePlayerWithId", playerId, colorPickerColor).then(function() {
             isBuildingShip = false;
         }).catch(function(err) {
@@ -73,8 +69,10 @@
     var keyMap = {};
     connection.on("GameState",
         function (bodies, alreadyCalculatedPaths) {
-            //context.canvas.width = window.innerWidth;
-            //context.canvas.height = window.innerHeight;
+            context.canvas.width = window.innerWidth;
+            context.canvas.height = window.innerHeight;
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
 
             //center view on player
             displayOffsetBody = bodies.filter(body => body.id === playerId)[0];
@@ -115,7 +113,6 @@
 
             //restore translation before next frame
             context.translate(trackerAndCanvasXOffset(), trackerAndCanvasYOffset());
-            //console.log(bodies);
 
             if (firstUpdate && displayOffsetBody !== "undefined" && displayOffsetBody !== null) {
                 //Put things here you only want to happen once
