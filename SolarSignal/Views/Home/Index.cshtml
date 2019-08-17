@@ -331,7 +331,7 @@
         function handleKey(e) {
             keyMap[e.keyCode] = e.type === "keydown";
             var handledKeyCodes = [37, 38, 39, 40, 68, 32, 80, 70, 107, 109, 187, 189];
-            if (handledKeyCodes.contains(e.keyCode)) {
+            if (handledKeyCodes.includes(e.keyCode)) {
                 e.preventDefault();
             }
             if (keyMap[68]) { //D
