@@ -12,8 +12,8 @@
 
     var starsList = [];
 
-    Math.seedrandom('any string you like');
-    for (var i = 0; i < 10000; i++) {
+    //Math.seedrandom('any string you like');
+    for (var i = 0; i < gridRadius; i++) {
         starsList.push([Math.random() * gridRadius, Math.random() * gridRadius]);
         starsList.push([-Math.random() * gridRadius, Math.random() * gridRadius]);
         starsList.push([Math.random() * gridRadius, -Math.random() * gridRadius]);
@@ -62,13 +62,13 @@
     context.font = "36px Arial";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = "white";
-    context.fillText("PAUSED AT START", canvasWidth / 2 - 250, canvasHeight/2 - 250);
+    context.fillText("PAUSED AT START", canvasWidth / 2 - 250, canvasHeight / 2 - 250);
     context.fillText("PRESS P TO UN-PAUSE", canvasWidth / 2 - 100, canvasHeight / 2 + 40);
     context.fill();
 
     var keyMap = {};
     connection.on("GameState",
-        function (bodies, alreadyCalculatedPaths) {
+        function(bodies, alreadyCalculatedPaths) {
             context.canvas.width = window.innerWidth;
             context.canvas.height = window.innerHeight;
             canvasWidth = window.innerWidth;
@@ -95,14 +95,15 @@
                 drawGrid();
             }
 
-            drawStars();
+            //this is super laggy, I swear it wasn't at one point
+            //drawStars();
 
             //draw future paths
             if (shouldDrawFuturePaths) {
                 if (alreadyCalculatedPaths && cachedBodyFutures[0] !== 0) {
-                    Object.keys(cachedBodyFutures).forEach(function (bodyName) {
-                        drawFuturePaths(cachedBodyFutures[bodyName], bodies.filter(b => b.name == bodyName)[0].color);
-                    });
+                    Object.keys(cachedBodyFutures).forEach(bodyName =>
+                        drawFuturePaths(cachedBodyFutures[bodyName], bodies.filter(b => b.name == bodyName)[0].color)
+                    );
                 } else {
                     bodies.forEach(body => drawFuturePaths(body.futurePositions, body.color));
                 }
@@ -159,9 +160,7 @@
 
     function drawStars() {
         context.fillStyle = "white";
-        starsList.forEach(function(star) {
-            context.fillRect(star[0], star[1], 2, 2);
-        });
+        starsList.forEach(star => context.fillRect(star[0], star[1], 2, 2));
         context.fill();
     }
 
