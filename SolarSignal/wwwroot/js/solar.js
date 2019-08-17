@@ -145,7 +145,7 @@
         });
 
     function drawGrid() {
-
+        context.beginPath();
         for (var i = -gridRadius / gridSpacing; i <= gridRadius / gridSpacing; i++) {
             context.moveTo(i * gridSpacing, -gridRadius);
             context.lineTo(i * gridSpacing, gridRadius);
@@ -167,11 +167,10 @@
 
     function drawBody(body) {
         context.beginPath();
-
         if (body.hasOwnProperty("id")) { //if player
             //draw a triangle shaped ship
             context.save();
-
+            context.beginPath();
             context.strokeStyle = body.color;
 
             //rotate drawing plane to match ship angle
@@ -179,15 +178,8 @@
             context.rotate(body.angle * Math.PI / 180);
             context.translate(-body.position.x, -body.position.y);
 
-            //draw ship body
-            context.moveTo(body.position.x + body.radius, body.position.y);
-            context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
-            context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
-
-            context.fillStyle = body.color;
-            context.fill();
-
             //draw effects
+            context.beginPath();
             if (body.input.upPressed) {
                 context.moveTo(body.position.x - body.radius, body.position.y);
                 context.lineTo(body.position.x - body.radius - body.radius * 3, body.position.y);
@@ -210,6 +202,25 @@
             }
             context.strokeStyle = "yellow";
             context.stroke();
+
+            //draw shield outline
+            context.beginPath();
+            context.arc(body.position.x,
+                body.position.y,
+                body.radius * 2,
+                0,
+                2 * Math.PI);
+            context.strokeStyle = "purple";
+            context.stroke();
+
+            //draw ship body
+            context.beginPath();
+            context.moveTo(body.position.x + body.radius, body.position.y);
+            context.lineTo(body.position.x - body.radius, body.position.y - body.radius);
+            context.lineTo(body.position.x - body.radius, body.position.y + body.radius);
+
+            context.fillStyle = body.color;
+            context.fill();
 
             //restore rotation
             context.restore();
