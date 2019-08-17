@@ -66,7 +66,6 @@ namespace SolarSignal.Hubs
         public async Task Shoot()
         {
             //todo:create a bullet or missile or whatever derived body and have them shoot out from the current player
-            throw new NotImplementedException();
         }
 
         public async Task Pause()

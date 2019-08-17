@@ -167,12 +167,19 @@
     function drawBody(body) {
         context.beginPath();
         if (body.hasOwnProperty("id")) { //if player
-            //draw a triangle shaped ship
-            context.save();
-            context.beginPath();
-            context.strokeStyle = body.color;
+
+            var offsetFactor = 0.3;
+            var nosePosition = { x: body.position.x + body.radius * (1 + offsetFactor), y: body.position.y };
+            var backRightPosition = { x: body.position.x - body.radius * (1 - offsetFactor), y: body.position.y + body.radius };
+            var backLeftPosition = { x: body.position.x - body.radius * (1 - offsetFactor), y: body.position.y - body.radius };
+            var backMiddlePosition = { x: body.position.x - body.radius * (1 - offsetFactor), y: body.position.y };
+
+            var forwardBackwardExhaustLength = body.radius * 3;
+            var frontSideExhaustLength = body.radius * 3;
+            var backSideExhaustLength = body.radius * 1.5;
 
             //rotate drawing plane to match ship angle
+            context.save();
             context.translate(body.position.x, body.position.y);
             context.rotate(body.angle * Math.PI / 180);
             context.translate(-body.position.x, -body.position.y);
@@ -180,24 +187,24 @@
             //draw effects
             context.beginPath();
             if (body.input.upPressed) {
-                context.moveTo(body.position.x - body.radius, body.position.y);
-                context.lineTo(body.position.x - body.radius - body.radius * 3, body.position.y);
+                context.moveTo(backMiddlePosition.x, backMiddlePosition.y);
+                context.lineTo(backMiddlePosition.x - forwardBackwardExhaustLength, backMiddlePosition.y);
             }
             if (body.input.downPressed) {
-                context.moveTo(body.position.x + body.radius, body.position.y);
-                context.lineTo(body.position.x + body.radius + body.radius * 3, body.position.y);
+                context.moveTo(nosePosition.x, nosePosition.y);
+                context.lineTo(nosePosition.x + forwardBackwardExhaustLength, nosePosition.y);
             }
             if (body.input.leftPressed) {
-                context.moveTo(body.position.x + body.radius, body.position.y);
-                context.lineTo(body.position.x + body.radius, body.position.y + body.radius * 1.75);
-                context.moveTo(body.position.x - body.radius, body.position.y - body.radius);
-                context.lineTo(body.position.x - body.radius, body.position.y - body.radius - body.radius * 0.75);
+                context.moveTo(nosePosition.x, nosePosition.y);
+                context.lineTo(nosePosition.x, nosePosition.y + frontSideExhaustLength);
+                context.moveTo(backLeftPosition.x, backLeftPosition.y);
+                context.lineTo(backLeftPosition.x, backLeftPosition.y - backSideExhaustLength);
             }
             if (body.input.rightPressed) {
-                context.moveTo(body.position.x + body.radius, body.position.y);
-                context.lineTo(body.position.x + body.radius, body.position.y - body.radius * 1.75);
-                context.moveTo(body.position.x - body.radius, body.position.y + body.radius);
-                context.lineTo(body.position.x - body.radius, body.position.y + body.radius + body.radius * 0.75);
+                context.moveTo(nosePosition.x, nosePosition.y);
+                context.lineTo(nosePosition.x, nosePosition.y - frontSideExhaustLength);
+                context.moveTo(backRightPosition.x, backRightPosition.y);
+                context.lineTo(backRightPosition.x, backRightPosition.y + backSideExhaustLength);
             }
             context.strokeStyle = "yellow";
             context.stroke();
@@ -214,9 +221,9 @@
 
             //draw ship body
             context.beginPath();
-            context.moveTo(body.position.x + body.radius * 1.2, body.position.y);
-            context.lineTo(body.position.x - body.radius * 0.8, body.position.y - body.radius);
-            context.lineTo(body.position.x - body.radius * 0.8, body.position.y + body.radius);
+            context.moveTo(nosePosition.x, nosePosition.y);
+            context.lineTo(backLeftPosition.x, backLeftPosition.y);
+            context.lineTo(backRightPosition.x, backRightPosition.y);
             context.fillStyle = body.color;
             context.fill();
 
