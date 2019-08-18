@@ -120,7 +120,7 @@ namespace SolarSignal.SolarModels
                 //ship acceleration
                 var scaleMagnitude =
                     3 / 30f * (Convert.ToInt32(player.Input.UpPressed) - Convert.ToInt32(player.Input.DownPressed));
-                var deltaV = Vector2.Multiply(player.AngleVector, scaleMagnitude);
+                var deltaV = player.AngleVector * scaleMagnitude;
 
                 //todo:limit player deltav based on their speed
                 //if player is going too fast and trying to go faster, project their deltav onto the vectors perpendicular to player.Velocity
@@ -188,20 +188,19 @@ namespace SolarSignal.SolarModels
 
                 if (displacement.Length() < sumOfRadii)
                 {
-                    var positionOffsetHalf = Vector2.Multiply(Vector2.Normalize(displacement),
-                        0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
+                    var positionOffsetHalf = Vector2.Normalize(displacement) *
+                                             (0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
                     otherBody.Position += positionOffsetHalf;
                     body.Position -= positionOffsetHalf;
                     var bodyFinalVelocity =
-                        Vector2.Multiply(Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)),
-                            body.Velocity) +
-                        Vector2.Multiply(Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)),
-                            otherBody.Velocity);
+                        Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)) *
+                        body.Velocity +
+                        Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)) *
+                        otherBody.Velocity;
                     var otherBodyVelocityFinal =
-                        Vector2.Multiply(Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)),
-                            body.Velocity) + Vector2.Multiply(
-                            Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)),
-                            otherBody.Velocity);
+                        Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)) *
+                        body.Velocity + Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)) *
+                        otherBody.Velocity;
                     body.Velocity = bodyFinalVelocity * 0.9f;
                     otherBody.Velocity = otherBodyVelocityFinal * 0.9f;
                 }
@@ -219,8 +218,8 @@ namespace SolarSignal.SolarModels
             {
                 var displacement = otherBody.Position - body.Position;
                 var rSquared = displacement.LengthSquared();
-                var acceleration = Vector2.Multiply(Vector2.Normalize(displacement),
-                    Convert.ToSingle(BigG * otherBody.Mass / rSquared));
+                var acceleration = Vector2.Normalize(displacement) *
+                                   Convert.ToSingle(BigG * otherBody.Mass / rSquared);
                 body.Velocity += acceleration;
             }
         }
@@ -296,7 +295,7 @@ namespace SolarSignal.SolarModels
         private Vector2 GetRandomVector()
         {
             var randomGenerator = new Random();
-            return new Vector2(randomGenerator.Next(-250, 250), randomGenerator.Next(-250, 250));
+            return new Vector2(randomGenerator.Next(-200, 200), randomGenerator.Next(-200, 200));
         }
 
         private Vector2 GetSuitableStartPosition()
@@ -316,7 +315,7 @@ namespace SolarSignal.SolarModels
                 Id = id,
                 Name = id,
                 Color = rgbColor,
-                Mass = 1000,
+                Mass = 100,
                 Radius = 10,
                 Position = GetSuitableStartPosition(),
                 Input = new Input

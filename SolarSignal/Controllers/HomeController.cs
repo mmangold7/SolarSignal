@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SolarSignal.Models;
 using SolarSignal.SolarModels;
 
@@ -40,8 +41,8 @@ namespace SolarSignal.Controllers
             var sun = new Body
             {
                 Name = "sun",
-                Mass = 330000,
-                Radius = 30,
+                Mass = 400000,
+                Radius = 40,
                 Position = new Vector2(0, 0),
                 Velocity = new Vector2(0, 0),
                 Color = "Yellow"
@@ -49,10 +50,15 @@ namespace SolarSignal.Controllers
             simulator.Bodies.Add(sun);
 
             //make the earth
-            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 10000, 3, "blue", "earth");
+            var earth = simulator.CreateCircularOrbiterOf(sun, 300, 1000, 6, "blue", "earth");
 
             //make the moon
-            var moon = simulator.CreateCircularOrbiterOf(earth, 15, .1, 2, "white", "moon");
+            var moon = simulator.CreateCircularOrbiterOf(earth, 15, .1, 1, "white", "moon");
+
+            //make some other planets
+            var mercury = simulator.CreateCircularOrbiterOf(sun, 100, 100, 3, "orange", "mercury");
+            var venus = simulator.CreateCircularOrbiterOf(sun, 200, 1000, 5, "yellow", "venus");
+            var mars = simulator.CreateCircularOrbiterOf(sun, 400, 500, 4, "red", "mars");
 
             //simulator.Bodies.Remove(sun);
 
