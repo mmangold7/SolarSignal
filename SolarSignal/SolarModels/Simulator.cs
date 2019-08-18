@@ -102,7 +102,7 @@ namespace SolarSignal.SolarModels
             //If there is no player input, there is no need to re-calculate futures since they are still determined correct
             if (Players.TrueForAll(
                     p => !p.Input.DownPressed && !p.Input.UpPressed && !p.FuturesIncremented &&
-                         !p.FuturesDecremented) &&
+                         !p.FuturesDecremented && !p.Input.ShootPressed) &&
                 _calculatedAtLeastOneFuture)
                 _alreadyCalculatedPaths = true;
             else
@@ -147,10 +147,10 @@ namespace SolarSignal.SolarModels
                     {
                         ParentBody = player,
                         Damage = 10,
-                        Mass = 10,
+                        Mass = .00001,
                         Radius = 2,
                         Color = "orange",
-                        Position = player.Position + (player.Radius + 1.5f) * player.AngleVector,
+                        Position = player.Position + (2 * player.Radius + 2f) * player.AngleVector,
                         Velocity = player.AngleVector * 3 + player.Velocity,
                         CreatedAt = shotTime
                     });
@@ -174,24 +174,37 @@ namespace SolarSignal.SolarModels
 
         private void UpdateBodyPosition(Body body)
         {
-            //HandleCollisions(body);
+            HandleCollisions(body);
             MoveBody(body);
             GravitateBody(body);
         }
 
         private void HandleCollisions(Body body)
         {
-            foreach (var otherBody in Bodies.Where(b => b != body))
+            //don't collide players with their own bullets, or bullets with other bullets
+            var collisionEligibleBodies = Bodies.Where(otherBody =>
+                otherBody != body &&
+                (otherBody.ParentBody != body && otherBody is Missile || body.ParentBody != otherBody && body is Missile || ( !(body is Missile) && !(otherBody is Missile)) ) &&
+                !(body is Missile && otherBody is Missile));
+
+            foreach (var otherBody in collisionEligibleBodies)
             {
+                //players radii is their shield radius
                 var displacement = otherBody.Position - body.Position;
-                var sumOfRadii = body.Radius + otherBody.Radius;
+                var bodyRadius = body is Player player ? player.Radius * 2 : body.Radius;
+                var otherBodyRadius = otherBody is Player otherPlayer ? otherPlayer.Radius * 2 : otherBody.Radius;
+                var sumOfRadii = bodyRadius + otherBodyRadius;
+
+                var spaceBetween = displacement.Length() - sumOfRadii;
 
                 if (displacement.Length() < sumOfRadii)
                 {
                     var positionOffsetHalf = Vector2.Normalize(displacement) *
                                              (0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
-                    otherBody.Position += positionOffsetHalf;
-                    body.Position -= positionOffsetHalf;
+
+                    //otherBody.Position += positionOffsetHalf;
+                    //body.Position -= positionOffsetHalf;
+
                     var bodyFinalVelocity =
                         Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)) *
                         body.Velocity +
@@ -199,10 +212,21 @@ namespace SolarSignal.SolarModels
                         otherBody.Velocity;
                     var otherBodyVelocityFinal =
                         Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)) *
-                        body.Velocity + Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)) *
+                        body.Velocity - Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)) *
                         otherBody.Velocity;
-                    body.Velocity = bodyFinalVelocity * 0.9f;
-                    otherBody.Velocity = otherBodyVelocityFinal * 0.9f;
+
+                    //body.Position += spaceBetween / body.Velocity.Length() * Vector2.Normalize(displacement);
+
+                    var bodyDeltaV = bodyFinalVelocity * 0.98f - body.Velocity;
+                    var otherBodyDeltaV = otherBodyVelocityFinal * 0.98f - otherBody.Velocity;
+
+                    var bodyDeltaS = bodyDeltaV.Length();
+                    var otherBodyDeltaS = otherBodyDeltaV.Length();
+
+                    body.Velocity += bodyDeltaS * Vector2.Normalize(body.Position - otherBody.Position);
+                    otherBody.Velocity += otherBodyDeltaS * Vector2.Normalize(otherBody.Position - body.Position);
+                    //body.Velocity += bodyDeltaV;
+                    //otherBody.Velocity += otherBodyDeltaV;
                 }
             }
         }
@@ -315,7 +339,7 @@ namespace SolarSignal.SolarModels
                 Id = id,
                 Name = id,
                 Color = rgbColor,
-                Mass = 100,
+                Mass = 250,
                 Radius = 10,
                 Position = GetSuitableStartPosition(),
                 Input = new Input
