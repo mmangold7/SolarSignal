@@ -264,11 +264,11 @@
 
                 //draw shield outline
                 context.lineWidth = 1;
-                //context.lineWidth = body.shieldHealth / 10;
                 var numShieldLayers = body.shieldHealth / 10;
-                for (var layerNum = 0; layerNum < numShieldLayers; layerNum++) {
-                    var shieldLayerOpacity = 1.0 - (1.0 / numShieldLayers * layerNum);
-                    context.strokeStyle = "rgba(150, 0, 150, " + shieldLayerOpacity + ")";
+                for (var layerNum = 1; layerNum <= numShieldLayers; layerNum++) {
+                    var shieldLayerOpacity = 1.0 - (layerNum / numShieldLayers);
+                    shieldLayerOpacity *= 0.5;
+                    context.strokeStyle = "rgba(220, 220, 255, " + shieldLayerOpacity + ")";
                     context.beginPath();
                     context.arc(body.position.x,
                         body.position.y,
@@ -277,6 +277,17 @@
                         2 * Math.PI);
                     context.stroke();
                 }
+
+                //draw shield body
+                var shieldBodyOpacity = 0.25 * body.shieldHealth / 100.0;
+                context.fillStyle = "rgba(200, 200, 255, " + shieldBodyOpacity + ")";
+                context.beginPath();
+                context.arc(body.position.x,
+                    body.position.y,
+                    body.radius * 2,
+                    0,
+                    2 * Math.PI);
+                context.fill();
 
                 //draw ship body
                 context.beginPath();
