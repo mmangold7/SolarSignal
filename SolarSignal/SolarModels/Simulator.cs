@@ -78,6 +78,7 @@ namespace SolarSignal.SolarModels
                 if (Bodies == null) break;
                 HandlePlayerInput();
                 foreach (var body in GetBodiesToGravitate()) UpdateBodyPosition(body);
+                foreach (var player in Players) HandleDamage(player);
                 if (AmountOfFuturePositionsToGenerate > 0 && !_alreadyCalculatedPaths && ShouldCalculateFuturePaths)
                     CalculateFuturePositions();
                 else
@@ -147,7 +148,7 @@ namespace SolarSignal.SolarModels
                     {
                         ParentBody = player,
                         Damage = 10,
-                        Mass = .00001,
+                        Mass = .000001,
                         Radius = 2,
                         Color = "orange",
                         Position = player.Position + (2 * player.Radius + 2f) * player.AngleVector,
@@ -179,6 +180,25 @@ namespace SolarSignal.SolarModels
             GravitateBody(body);
         }
 
+        private void HandleDamage(Player player)
+        {
+            var damageEligibleMissiles = Missiles.Where(m =>
+                Vector2.Distance(player.Position, m.Position) < player.Radius * 2 + m.Radius && m.ParentBody != player);
+            foreach (var damageEligibleMissile in damageEligibleMissiles)
+            {
+                player.ShieldHealth -= damageEligibleMissile.Damage;
+                Bodies.Remove(damageEligibleMissile);
+            }
+
+            if (player.ShieldHealth <= 0)
+            {
+                player.Position = GetSuitableStartPosition();
+                player.ShieldHealth = 100;
+                player.Velocity = new Vector2(0, 0);
+                player.Angle = 0;
+            }
+        }
+
         private void HandleCollisions(Body body)
         {
             //don't collide players with their own bullets, or bullets with other bullets
@@ -195,13 +215,11 @@ namespace SolarSignal.SolarModels
                 var otherBodyRadius = otherBody is Player otherPlayer ? otherPlayer.Radius * 2 : otherBody.Radius;
                 var sumOfRadii = bodyRadius + otherBodyRadius;
 
-                var spaceBetween = displacement.Length() - sumOfRadii;
-
                 if (displacement.Length() < sumOfRadii)
                 {
-                    var positionOffsetHalf = Vector2.Normalize(displacement) *
-                                             (0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
-
+                    //todo: an actual replacement or this
+                    //var positionOffsetHalf = Vector2.Normalize(displacement) *
+                    //                         (0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
                     //otherBody.Position += positionOffsetHalf;
                     //body.Position -= positionOffsetHalf;
 
@@ -215,6 +233,7 @@ namespace SolarSignal.SolarModels
                         body.Velocity - Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)) *
                         otherBody.Velocity;
 
+                    //var spaceBetween = displacement.Length() - sumOfRadii;
                     //body.Position += spaceBetween / body.Velocity.Length() * Vector2.Normalize(displacement);
 
                     var bodyDeltaV = bodyFinalVelocity * 0.98f - body.Velocity;

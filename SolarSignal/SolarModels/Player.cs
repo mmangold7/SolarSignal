@@ -16,6 +16,7 @@ namespace SolarSignal.SolarModels
         public bool FuturesDecremented { get; set; }
         public Input Input { get; set; }
         public DateTime LastShotTime { get; set; }
+        public float ShieldHealth { get; set; } = 100;
 
         #endregion
     }
