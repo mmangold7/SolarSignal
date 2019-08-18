@@ -9,7 +9,7 @@ namespace SolarSignal.SolarModels
         #region ///  Properties  ///
 
         public string Name { get; set; }
-        public double Mass { get; set; }
+        public float Mass { get; set; }
         public float Radius { get; set; }
 
         public Vector2 Position { get; set; }

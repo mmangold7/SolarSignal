@@ -14,7 +14,7 @@ namespace SolarSignal.SolarModels
         #region ///  Constants  ///
 
         private const double BigG = .0002;
-        private const int Fps = 240;
+        private const int Fps = 90;
 
         #endregion
 
@@ -144,18 +144,24 @@ namespace SolarSignal.SolarModels
                 if (player.Input.ShootPressed && DateTime.Now - player.LastShotTime > TimeSpan.FromMilliseconds(100))
                 {
                     var shotTime = DateTime.Now;
-                    Bodies.Add(new Missile
+
+                    var newMissile = new Missile
                     {
                         ParentBody = player,
                         Damage = 10,
-                        Mass = .000001,
+                        Mass = 10f,
                         Radius = 2,
                         Color = "orange",
                         Position = player.Position + (2 * player.Radius + 2f) * player.AngleVector,
                         Velocity = player.AngleVector * 3 + player.Velocity,
                         CreatedAt = shotTime
-                    });
+                    };
+
+                    Bodies.Add(newMissile);
+
                     player.LastShotTime = shotTime;
+
+                    player.Velocity -= (newMissile.Velocity * newMissile.Mass) / player.Mass;
                 }
             }
         }
@@ -297,7 +303,7 @@ namespace SolarSignal.SolarModels
             _calculatedAtLeastOneFuture = true;
         }
 
-        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, double mass, float radius,
+        public Body CreateCircularOrbiterOf(Body parentBody, float orbitRadius, float mass, float radius,
             string color, string name)
         {
             var orbiter = new Body
