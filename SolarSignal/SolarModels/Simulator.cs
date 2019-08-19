@@ -154,14 +154,15 @@ namespace SolarSignal.SolarModels
                         Color = "orange",
                         Position = player.Position + (2 * player.Radius + 2f) * player.AngleVector,
                         Velocity = player.AngleVector * 3 + player.Velocity,
-                        CreatedAt = shotTime
+                        CreatedAt = shotTime,
+                        Name = $"Missile {shotTime.Ticks}"
                     };
 
                     Bodies.Add(newMissile);
 
                     player.LastShotTime = shotTime;
 
-                    player.Velocity -= (newMissile.Velocity * newMissile.Mass) / player.Mass;
+                    player.Velocity -= newMissile.Velocity * newMissile.Mass / player.Mass;
                 }
             }
         }
@@ -207,51 +208,47 @@ namespace SolarSignal.SolarModels
 
         private void HandleCollisions(Body body)
         {
-            //don't collide players with their own bullets, or bullets with other bullets
+            //don't collide
             var collisionEligibleBodies = Bodies.Where(otherBody =>
-                otherBody != body &&
-                (otherBody.ParentBody != body && otherBody is Missile || body.ParentBody != otherBody && body is Missile || ( !(body is Missile) && !(otherBody is Missile)) ) &&
-                !(body is Missile && otherBody is Missile));
+                otherBody != body && //bodies with themselves
+                (otherBody.ParentBody != body && otherBody is Missile ||
+                 body.ParentBody != otherBody && body is Missile ||
+                 !(body is Missile) && !(otherBody is Missile)) && //players with their own bullets
+                !(body is Missile && otherBody is Missile)).ToList(); //bullets with other bullets
 
             foreach (var otherBody in collisionEligibleBodies)
             {
                 //players radii is their shield radius
                 var displacement = otherBody.Position - body.Position;
+                var distance = displacement.Length();
                 var bodyRadius = body is Player player ? player.Radius * 2 : body.Radius;
                 var otherBodyRadius = otherBody is Player otherPlayer ? otherPlayer.Radius * 2 : otherBody.Radius;
                 var sumOfRadii = bodyRadius + otherBodyRadius;
 
-                if (displacement.Length() < sumOfRadii)
+                //if they are in colliding range
+                if (distance < sumOfRadii && !body.CollidingWithBodies.Contains(otherBody))
                 {
-                    //todo: an actual replacement or this
-                    //var positionOffsetHalf = Vector2.Normalize(displacement) *
-                    //                         (0.5f * Convert.ToSingle(sumOfRadii - displacement.Length()));
-                    //otherBody.Position += positionOffsetHalf;
-                    //body.Position -= positionOffsetHalf;
+                    var initialMomentum = body.Mass * body.Velocity + otherBody.Mass * otherBody.Velocity;
+                    var totalMass = body.Mass + otherBody.Mass;
 
                     var bodyFinalVelocity =
-                        Convert.ToSingle((body.Mass - otherBody.Mass) / (body.Mass + otherBody.Mass)) *
-                        body.Velocity +
-                        Convert.ToSingle(2 * otherBody.Mass / (body.Mass + otherBody.Mass)) *
-                        otherBody.Velocity;
-                    var otherBodyVelocityFinal =
-                        Convert.ToSingle(2 * body.Mass / (body.Mass + otherBody.Mass)) *
-                        body.Velocity - Convert.ToSingle((otherBody.Mass - body.Mass) / (body.Mass + otherBody.Mass)) *
-                        otherBody.Velocity;
+                        (initialMomentum +
+                         otherBody.Mass * (otherBody.Velocity - body.Velocity)) / totalMass;
+                    var otherBodyFinalVelocity =
+                        (initialMomentum +
+                         body.Mass * (body.Velocity - otherBody.Velocity)) / totalMass;
 
-                    //var spaceBetween = displacement.Length() - sumOfRadii;
-                    //body.Position += spaceBetween / body.Velocity.Length() * Vector2.Normalize(displacement);
+                    body.Velocity = bodyFinalVelocity * Vector2.Normalize(body.Position - otherBody.Position);
+                    otherBody.Velocity = otherBodyFinalVelocity * Vector2.Normalize(otherBody.Position - body.Position);
 
-                    var bodyDeltaV = bodyFinalVelocity * 0.98f - body.Velocity;
-                    var otherBodyDeltaV = otherBodyVelocityFinal * 0.98f - otherBody.Velocity;
+                    body.CollidingWithBodies.Add(otherBody);
+                    otherBody.CollidingWithBodies.Add(body);
+                }
 
-                    var bodyDeltaS = bodyDeltaV.Length();
-                    var otherBodyDeltaS = otherBodyDeltaV.Length();
-
-                    body.Velocity += bodyDeltaS * Vector2.Normalize(body.Position - otherBody.Position);
-                    otherBody.Velocity += otherBodyDeltaS * Vector2.Normalize(otherBody.Position - body.Position);
-                    //body.Velocity += bodyDeltaV;
-                    //otherBody.Velocity += otherBodyDeltaV;
+                if (body.CollidingWithBodies.Contains(otherBody) && distance > sumOfRadii)
+                {
+                    body.CollidingWithBodies.Remove(otherBody);
+                    otherBody.CollidingWithBodies.Remove(body);
                 }
             }
         }
