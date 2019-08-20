@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
@@ -7,16 +6,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting.Internal;
 using SolarSignal.Hubs;
 using SolarSignal.SolarModels;
-using HostingEnvironment = Microsoft.AspNetCore.Hosting.Internal.HostingEnvironment;
 
 namespace SolarSignal
 {
     public class Startup
     {
+        #region ///  Fields  ///
+
         private HostingEnvironment env;
+
+        #endregion
 
         #region ///  Constructors  ///
 

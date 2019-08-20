@@ -22,9 +22,7 @@
 
         #container canvas, #overlay { position: absolute; }
 
-        label {
-            color: white
-        }
+        label { color: white }
     </style>
 </head>
 <body>
@@ -35,7 +33,7 @@
     <div id="overlay">
         <label for="shipColorPicker">Ship Color:</label>
         <input class="color" id="shipColorPicker"/>
-        <input type="button" id="playButton" value="Play" />
+        <input type="button" id="playButton" value="Play"/>
     </div>
 </div>
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -161,7 +159,9 @@
                 }
 
                 bodies.forEach(function(body) {
-                    if (body.futurePositions !== undefined && body.futurePositions !== null && body.futurePositions.length > 0) {
+                    if (body.futurePositions !== undefined &&
+                        body.futurePositions !== null &&
+                        body.futurePositions.length > 0) {
                         cachedBodyFutures[body.name] = body.futurePositions;
                     }
                 });

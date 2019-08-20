@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SolarSignal.Models;
 using SolarSignal.SolarModels;
 
@@ -11,27 +10,43 @@ namespace SolarSignal.Controllers
 {
     public class HomeController : Controller
     {
+        #region ///  Fields  ///
+
         private readonly IServiceProvider _serviceProvider;
+
+        #endregion
+
+        #region ///  Constructors  ///
 
         public HomeController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
 
-        public IActionResult Index()
+        #endregion
+
+        #region ///  Methods  ///
+
+        public IActionResult About()
         {
-            StartSimulationIfStopped();
+            ViewData["Message"] = "Your application description page.";
+
             return View();
         }
 
-        private void StartSimulationIfStopped()
+        public IActionResult Contact()
         {
-            if (Globals.Simulator != null) return; //not stopped
+            ViewData["Message"] = "Your contact page.";
 
-            //start it up
-            Globals.Simulator = GetSolSimulator();
-            Task.Run(() => Globals.Simulator.Simulate());
+            return View();
         }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error() =>
+            View(new ErrorViewModel
+                 {
+                     RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                 });
 
         public Simulator GetSolSimulator()
         {
@@ -39,14 +54,14 @@ namespace SolarSignal.Controllers
 
             //make the sun
             var sun = new Body
-            {
-                Name = "sun",
-                Mass = 400000,
-                Radius = 40,
-                Position = new Vector2(0, 0),
-                Velocity = new Vector2(0, 0),
-                Color = "Yellow"
-            };
+                      {
+                          Name = "sun",
+                          Mass = 400000,
+                          Radius = 40,
+                          Position = new Vector2(0, 0),
+                          Velocity = new Vector2(0, 0),
+                          Color = "Yellow"
+                      };
             simulator.Bodies.Add(sun);
 
             //make the earth
@@ -65,29 +80,26 @@ namespace SolarSignal.Controllers
             return simulator;
         }
 
-        public IActionResult About()
+        public IActionResult Index()
         {
-            ViewData["Message"] = "Your application description page.";
-
+            StartSimulationIfStopped();
             return View();
         }
 
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
+        public IActionResult Privacy() => View();
 
-            return View();
+        private void StartSimulationIfStopped()
+        {
+            if (Globals.Simulator != null)
+            {
+                return; //not stopped
+            }
+
+            //start it up
+            Globals.Simulator = GetSolSimulator();
+            Task.Run(() => Globals.Simulator.Simulate());
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
-        }
+        #endregion
     }
 }

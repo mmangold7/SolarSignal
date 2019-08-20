@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Newtonsoft.Json;
 
 namespace SolarSignal.SolarModels
 {
@@ -9,11 +6,11 @@ namespace SolarSignal.SolarModels
     {
         #region ///  Properties  ///
 
+        public DateTime CreatedAt { get; set; }
+
         public float Damage { get; set; }
 
         public float InitialSpeed { get; set; }
-
-        public DateTime CreatedAt { get; set; }
 
         #endregion
     }

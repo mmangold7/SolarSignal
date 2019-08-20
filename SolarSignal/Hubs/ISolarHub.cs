@@ -6,15 +6,19 @@ namespace SolarSignal.Hubs
 {
     public interface ISolarHub
     {
+        #region ///  Methods  ///
+
+        Task DecreaseFuturesCalculations();
         Task GameState(List<Body> bodies, bool alreadyCalculatedPaths);
-        Task Message(string user, string message);
+        Task IncreaseFuturesCalculations();
         Task Input(Input keyMap);
-        Task Shoot();
+        Task Message(string user, string message);
         Task Pause();
         Task Resume();
+        Task Shoot();
         Task ToggleCalculateFuturePaths(bool currentShouldCalculateFuturePaths);
         Task TogglePaused();
-        Task IncreaseFuturesCalculations();
-        Task DecreaseFuturesCalculations();
+
+        #endregion
     }
 }
