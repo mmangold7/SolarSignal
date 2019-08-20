@@ -238,8 +238,8 @@ namespace SolarSignal.SolarModels
                         (initialMomentum +
                          body.Mass * (body.Velocity - otherBody.Velocity)) / totalMass;
 
-                    body.Velocity = bodyFinalVelocity * Vector2.Normalize(body.Position - otherBody.Position);
-                    otherBody.Velocity = otherBodyFinalVelocity * Vector2.Normalize(otherBody.Position - body.Position);
+                    body.Velocity = 0.9f * bodyFinalVelocity.Length() * Vector2.Normalize(body.Position - otherBody.Position);
+                    otherBody.Velocity = 0.9f * otherBodyFinalVelocity.Length() * Vector2.Normalize(otherBody.Position - body.Position);
 
                     body.CollidingWithBodies.Add(otherBody);
                     otherBody.CollidingWithBodies.Add(body);
@@ -274,13 +274,15 @@ namespace SolarSignal.SolarModels
         {
             var originalPositions = new Dictionary<Body, Vector2>();
             var originalVelocities = new Dictionary<Body, Vector2>();
-
+            var originalCollidingWithBodies = new Dictionary<Body, List<Body>>();
+            
             var bodiesToMakeFuturesFor = Bodies.Except(Missiles).ToList();
 
             foreach (var body in bodiesToMakeFuturesFor)
             {
                 originalPositions.Add(body, body.Position);
                 originalVelocities.Add(body, body.Velocity);
+                originalCollidingWithBodies.Add(body, body.CollidingWithBodies);
                 body.FuturePositions = new List<Vector2>();
             }
 
@@ -295,6 +297,7 @@ namespace SolarSignal.SolarModels
             {
                 body.Position = originalPositions[body];
                 body.Velocity = originalVelocities[body];
+                body.CollidingWithBodies = originalCollidingWithBodies[body];
             }
 
             _calculatedAtLeastOneFuture = true;
