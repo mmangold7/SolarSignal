@@ -156,7 +156,7 @@ namespace SolarSignal.SolarModels
                     HandleDamage(player);
                 }
 
-                if (AmountOfFuturePositionsToGenerate > 0 && !_alreadyCalculatedPaths && ShouldCalculateFuturePaths)
+                if (ShouldCalculateFuturePaths && !_alreadyCalculatedPaths && AmountOfFuturePositionsToGenerate > 0)
                 {
                     CalculateFuturePositions();
                 }
@@ -289,8 +289,8 @@ namespace SolarSignal.SolarModels
             //don't collide
             var collisionEligibleBodies = Bodies.Where(otherBody => otherBody != body && //bodies with themselves
                                                                     (otherBody.ParentBody != body && otherBody is Missile || body.ParentBody != otherBody && body is Missile || !(body is Missile) && !(otherBody is Missile)) && //players with their own bullets
-                                                                    !(body is Missile && otherBody is Missile))
-                                                .ToList(); //bullets with other bullets
+                                                                    !(body is Missile && otherBody is Missile)) //bullets with other bullets
+                                                .ToList();
 
             foreach (var otherBody in collisionEligibleBodies)
             {
