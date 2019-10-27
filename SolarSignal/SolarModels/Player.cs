@@ -15,7 +15,7 @@ namespace SolarSignal.SolarModels
         public bool FuturesIncremented { get; set; }
 
         public string Id { get; set; }
-        public Input Input { get; set; }
+        public Input Input { get; set; } = new Input();
         public DateTime LastShotTime { get; set; }
         public float ShieldHealth { get; set; } = 100;
 

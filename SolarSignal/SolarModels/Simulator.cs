@@ -95,14 +95,6 @@ namespace SolarSignal.SolarModels
                            Mass = 250,
                            Radius = 10,
                            Position = GetSuitableStartPosition(),
-                           Input = new Input
-                                   {
-                                       UpPressed = false,
-                                       DownPressed = false,
-                                       LeftPressed = false,
-                                       RightPressed = false,
-                                       ShootPressed = false
-                                   }
                        });
         }
 
@@ -146,6 +138,7 @@ namespace SolarSignal.SolarModels
                 }
 
                 HandlePlayerInput();
+
                 foreach (var body in GetBodiesToGravitate())
                 {
                     UpdateBodyPosition(body);
