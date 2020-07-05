@@ -107,6 +107,39 @@ namespace SolarSignal.SolarModels
             }
         }
 
+        public void SetUpSol()
+        {
+            //make the sun
+            var sun = new Body
+                      {
+                          Name = "sun",
+                          Mass = 400000,
+                          Radius = 40,
+                          Position = new Vector2(0, 0),
+                          Velocity = new Vector2(0, 0),
+                          Color = "Yellow"
+                      };
+            this.Bodies.Add(sun);
+
+            //make the earth
+            var earth = this.CreateCircularOrbiterOf(sun, 300, 1000, 6, "blue", "earth");
+
+            //make the moon
+            var moon = this.CreateCircularOrbiterOf(earth, 15, .1f, 1, "white", "moon");
+
+            //make some other planets
+            var mercury = this.CreateCircularOrbiterOf(sun, 100, 100, 3, "orange", "mercury");
+            var venus = this.CreateCircularOrbiterOf(sun, 200, 1000, 5, "yellow", "venus");
+            var mars = this.CreateCircularOrbiterOf(sun, 400, 500, 4, "red", "mars");
+        }
+
+        public void ResetSimulation()
+        {
+            Bodies.RemoveAll(b => b.GetType() != typeof(Player) && b.GetType() != typeof(Missile));
+
+            SetUpSol();
+        }
+
         public void DestroyPlayerWithId(string id)
         {
             Bodies.Remove(Players.Single(p => p.Id == id));

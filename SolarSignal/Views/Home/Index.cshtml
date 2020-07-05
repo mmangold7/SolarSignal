@@ -345,30 +345,35 @@
 
         function handleKey(e) {
             keyMap[e.keyCode] = e.type === "keydown";
-            var handledKeyCodes = [37, 38, 39, 40, 68, 32, 80, 70, 107, 109, 187, 189];
+            var handledKeyCodes = [37, 38, 39, 40, 68, 32, 80, 70, 107, 109, 187, 189, 61, 173];
             if (handledKeyCodes.includes(e.keyCode)) {
                 e.preventDefault();
             }
-            if (keyMap[68]) { //D
+            if (keyMap[68]) { // D
                 debugEnabled = !debugEnabled;
             }
-            if (keyMap[80]) { //P
+            if (keyMap[80]) { // P
                 connection.invoke("TogglePaused").catch(function(err) {
                     return console.error(err.toString());
                 });
             }
-            if (keyMap[70]) { //F
+            if (keyMap[70]) { // F
                 connection.invoke("ToggleCalculateFuturePaths", shouldDrawFuturePaths).catch(function(err) {
                     return console.error(err.toString());
                 });
             }
-            if (keyMap[107] || keyMap[187]) { //+
+            if (keyMap[107] || keyMap[187] || keyMap[61]) { // +
                 connection.invoke("IncreaseFuturesCalculations").catch(function(err) {
                     return console.error(err.toString());
                 });
             }
-            if (keyMap[109] || keyMap[189]) { //-
+            if (keyMap[109] || keyMap[189] || keyMap[173]) { // -
                 connection.invoke("DecreaseFuturesCalculations").catch(function(err) {
+                    return console.error(err.toString());
+                });
+            }
+            if (keyMap[82]) { // R
+                connection.invoke("ResetSimulation").catch(function(err) {
                     return console.error(err.toString());
                 });
             }

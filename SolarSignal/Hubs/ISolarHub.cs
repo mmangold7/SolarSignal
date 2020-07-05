@@ -18,6 +18,7 @@ namespace SolarSignal.Hubs
         Task Shoot();
         Task ToggleCalculateFuturePaths(bool currentShouldCalculateFuturePaths);
         Task TogglePaused();
+        Task ResetSimulation();
 
         #endregion
     }

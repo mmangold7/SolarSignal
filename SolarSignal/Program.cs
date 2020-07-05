@@ -9,7 +9,9 @@ namespace SolarSignal
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            return WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+            var hostUrl = "https://0.0.0.0:5001";
+
+            return WebHost.CreateDefaultBuilder(args).UseUrls(hostUrl).UseStartup<Startup>();
         }
 
         public static void Main(string[] args)

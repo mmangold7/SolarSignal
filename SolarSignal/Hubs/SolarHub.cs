@@ -46,6 +46,11 @@ namespace SolarSignal.Hubs
             _simulator.DecreaseFuturesCalculations();
         }
 
+        public async Task ResetSimulation()
+        {
+            _simulator.ResetSimulation();
+        }
+
         public async Task GameState(List<Body> bodies, bool alreadyCalculatedPaths)
         {
             await Clients.All.GameState(bodies, alreadyCalculatedPaths);
